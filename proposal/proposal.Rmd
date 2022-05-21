@@ -1,0 +1,82 @@
+---
+title: "Project proposal"
+author: "Team name"
+output: pdf_document
+---
+
+```{r load-packages, message = FALSE}
+library(knitr)
+library(tidyverse)
+library(broom)
+library(htmltools)
+```
+
+```{r setup, include = FALSE}
+opts_chunk$set(echo=FALSE) # hide source code in the document
+```
+
+## 1. Introduction
+The Differences Between Various Memory-Improvement Treatments on Neurons using Multielectrode Arrays.
+
+In general, memory is the process of encoding, storing, and retrieving experiences and knowledge.
+We would like to generally describe the process of forming a memory. This background will help us explain our project.
+Please note that in the following document, 'neurons' will only refer to those found in the brain, and not to those found in the nervous system.
+
+The brain simmers with activity. Different groups of neurons, responsible for different thoughts or perceptions, drift in and out of action.
+A 'group' is formed when two neurons create a connection - called synapses - by transfering electronic signals between one another.
+These connections can be made stronger or weaker depending on when and how often they have been activated in the past. 
+Active connections tend to get stronger, whereas those that aren’t used get weaker and can eventually disappear entirely.
+Retrieving a memory is the reactivation of a specific group of neurons, formed from persistent changes in the strength of connections between neurons.
+
+Throughout history, humans have always tried to improve that ability: strengthen the connections between neurons while creating new ones.
+The presented research's aim is to find a drug that is proved to improve memory, meaning maintaining the current connections for a longer period of time, even when not used. 
+Neurons are bred on a petri dish with electrodes in a laboratory. Every petri dish is given a different treatment with different dosage. A few of them are the control group and are not given a treatment at all.
+The electrodes monitor and document every connection made in each of the petri dishes.
+Our specific problem is the last step to do so: for two specific drugs (AP5, FGL) we would like to determine whether they are efficient or not, and if so, which one is more efficient.
+
+Our approach is to find the correlation between different electrodes on a single petri dish and later to compare between the different perti dishes.
+
+
+## 2. Data
+
+
+## 3. Preliminary results
+
+
+## 4. Data analysis plan
+Our plan: 
+1. Clean up the data: The data is automatically recorded and due to some technical failures has some NULL rows that might interrupt the analysis. 
+
+2. Combine the different data files.
+
+3. Find correlation between electrodes per petri dish. This process has to be done several times, for each step of the experiment: before treatment, during treatment and during the night after the treatment. 
+This will help us determine which neurons formed connection before and during treatment, and if so, has it gone stronger or weaker?
+
+4. Compare different petri dishes. This will help us determine if the treatment is efficient, and which one is the most. 
+
+We will analyze the connections formed between two electrodes in a petri dish. Electrodes that are recording frequent electric signals between one another, have a stronger connection. 
+After that we will analyze the correlation between different petri dishes.
+For this analysis, we will create a correlation matrix per petri, probably by Pearson's Correlation. We still need to determine which method to use to compare petri dished. 
+
+The correlation matrix will help us determine if the connections formed became stronger with treatment, and if so, we will be able to say the treatment help improve memory. 
+
+The data is divided to 3 time periods:
+1. Before treatment
+2. During treatment
+3. After treatment (at night)
+
+Each group member will analyze one of these time periods. In the end, we will combine our conclusions in order to find the best treatment from the given ones.
+
+## Appendix
+
+### Data README
+
+```{r include_data_readme, comment=''}
+cat(readLines('../data/README.md'), sep = '\n')
+```
+
+### Source code
+
+```{r, ref.label=knitr::all_labels(), echo=TRUE, eval=FALSE}
+
+```
