@@ -31,7 +31,7 @@ Explanation for every column:
     part no.2 - Electrode number
     
 5. "Amplitude (mV)" - Measurement of the voltage of electronic signals who created by neuron, measured in millivolt.
-<br/>
+
 At the end of the Excel file there is information about each Petri dish, such as: the type of treatment he received,Concentration, activity,etc.
 
 
