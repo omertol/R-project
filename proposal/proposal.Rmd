@@ -38,7 +38,7 @@ Our approach is to find the correlation between different electrodes on a single
 
 
 ## 2. Data
-The data includes six Excel files , each of them describes different time periods on the research.
+The data contains records of electronic signals who sends by neurons and divided includes six Excel files , each of them describes different time periods on the research.
 The different time periods:
 1. Before treatment - 1 Excel file ; area code "bi"
 2. During treatment - 2 Excel files ; area code "ac"
