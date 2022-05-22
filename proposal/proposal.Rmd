@@ -38,7 +38,7 @@ Our approach is to find the correlation between different electrodes on a single
 
 
 ## 2. Data
-The data contains records of: time, Petri number, Electrode number, Amplitude.
+The data contains records of: time, Petri ID, Electrode Number, Amplitude (voltage).
 When neuron trasfer electric signal, the amplitude is measured by the electrode and added to the data set.
 There are six excel files in the data and divided according to the different stages of the research. Each stage is a different time period during the day.
 The different time periods:
@@ -48,15 +48,98 @@ The different time periods:
 
 
 ## 3. Preliminary results
-The following graph shows the difference between electric signal sent during the day for a specific petri dish called "D4". 
+
+```{r, echo = FALSE}
+# Load the data
+bl_000 <- read.csv(file = "C:\\Users\\97250\\OneDrive - post.bgu.ac.il\\Desktop\\Education\\BGU\\Spring 2022\\Advanced Data Analysis in R\\Final Project\\R-project\\data\\bl div16(000)_spike_list.csv")
+
+ac_000 <- read.csv(file = "C:\\Users\\97250\\OneDrive - post.bgu.ac.il\\Desktop\\Education\\BGU\\Spring 2022\\Advanced Data Analysis in R\\Final Project\\R-project\\data\\ac div16(000)_spike_list.csv")
+
+ac_004 <- read.csv(file = "C:\\Users\\97250\\OneDrive - post.bgu.ac.il\\Desktop\\Education\\BGU\\Spring 2022\\Advanced Data Analysis in R\\Final Project\\R-project\\data\\ac div16(004)_spike_list.csv")
+
+on_005 <- read.csv(file = "C:\\Users\\97250\\OneDrive - post.bgu.ac.il\\Desktop\\Education\\BGU\\Spring 2022\\Advanced Data Analysis in R\\Final Project\\R-project\\data\\on div16(005)_spike_list.csv")
+
+on_011 <- read.csv(file = "C:\\Users\\97250\\OneDrive - post.bgu.ac.il\\Desktop\\Education\\BGU\\Spring 2022\\Advanced Data Analysis in R\\Final Project\\R-project\\data\\on div16(011)_spike_list.csv")
+
+on_018 <- read.csv(file = "C:\\Users\\97250\\OneDrive - post.bgu.ac.il\\Desktop\\Education\\BGU\\Spring 2022\\Advanced Data Analysis in R\\Final Project\\R-project\\data\\on div16(018)_spike_list.csv")
+```
+
+```{r, echo=FALSE}
+# Prepare the data
+get_petri <- function(df){
+  df_res <- df[c(3,4,5)]
+  df_res <- separate(df_res, col = "Electrode",
+           into = c("Petri", "Electrode"),
+           sep = "_")
+  df_res <- drop_na(df_res)
+  return(df_res)
+}
+
+bl_000_res <- get_petri(bl_000)
+ac_000_res <- get_petri(ac_000)
+ac_004_res <- get_petri(ac_004)
+on_005_res <- get_petri(on_005)
+on_011_res <- get_petri(on_011)
+on_018_res <- get_petri(on_018)
+```
+```{r}
+bl_d4 <- filter(bl_000_res, bl_000_res$Petri == "D4")
+ac_d4 <- filter(ac_004_res, ac_004_res$Petri == "D4")
+on_d4 <- filter(on_005_res, on_005_res$Petri == "D4")
+```
+1. The following graph shows the difference between electric signal sent during the day for a specific petri dish called "D4". 
 We can see how in different time period the electrodes record different amount of signals sent.
 
+```{r}
+bl_d4['file'] <- 'bl'
+ac_d4['file'] <- 'ac'
+on_d4['file'] <- 'on'
+
+all <- bind_rows(bl_d4, ac_d4, on_d4)
+all <- drop_na(all)
+
+ggplot(all, aes(x = Electrode, fill = file)) +
+  geom_bar(position = "dodge", width = .5) +
+  theme_classic() + 
+  scale_fill_brewer(labels = c("Before Treatment", "During Treatment", "After Treatment"), palette = "Pastel1") + 
+  labs(title= "Electric Signals Sent per Electrode",
+       x = "Electrode",
+       y = "Electric Signals Count",
+       fill = "Time of Experiment:") + 
+  theme(
+        legend.box = "verical",
+        legend.position = "bottom"
+  )
+```
 For this specific petri dish we can learn that the treatment wasn't efficient in strengthen the connections between neurons and improving memory.
 
-The following graph shows the amplitude of the signals sent from one neuron during the day, as recorded by the electrode its on, for the same petri dish.
+2. The following graph shows the amplitude of the signals sent from one neuron during the day, as recorded by the electrode its on, for the same petri dish.
 Using the boxplot graph we can learn the maximum, mean and minimum of the voltage sent per electrode.
 
-The next table is the mean values of the amplitude discussed above.
+```{r, height = 7, width = 10}
+all <- transform(all, Amplitude..mV. = as.numeric(Amplitude..mV.))
+ggplot(all, aes(x = Electrode, y=Amplitude..mV., fill= file)) +
+  geom_boxplot() +
+  theme_classic() +
+  scale_fill_brewer(labels = c("Before Treatment", "During Treatment", "After Treatment"), palette = "Pastel2") + 
+  labs(title= "Voltage Sent per Electrode",
+       x = "Electrode",
+       y = "Voltage",
+       fill = "Time of Experiment:") + 
+  theme(
+        legend.box = "verical",
+        legend.position = "bottom"
+  )
+```
+
+3. The next table is the mean values of the amplitude discussed above.
+```{r}
+all_means <- all %>%
+  group_by(Electrode, file) %>%
+  summarise_at(vars("Amplitude..mV."), mean)
+
+all_means
+```
 
 ## 4. Data analysis plan
 Our plan: 
