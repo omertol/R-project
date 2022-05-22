@@ -1,6 +1,6 @@
 # SISE2601 Project data description
 ================
-**Group P**
+**Team P**
 
 *The data:* 
 <br/>
@@ -18,7 +18,7 @@ Every Excel files describes different time periods of the research:
 5. 11 hours from the moment the night started.
 6. 18 hours from the moment the night started.
 
-Explanation to every column:
+Explanation for every column:
 1. "Investigator" and cloumn no.2 (missing name) - General information about the recording like: "Experiment Start Time" (date) and "Temperature" .
   "Investigator" - The title
 2. cloumn no.2 - The information
