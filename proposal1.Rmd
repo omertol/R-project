@@ -24,6 +24,18 @@ ggscatter(my_data, x = "Time", y = "Electrode",
           add = "reg.line", conf.int = TRUE, 
           cor.coef = TRUE, cor.method = "pearson",
           xlab = "Time", ylab = "Electrode")
+plot(x, y, main = "pulses between neurons",
+     xlab = "Time", ylab = "Electrode",
+     pch = 19, frame = FALSE)
+abline(lm(y ~ x, data = mtcars), col = "blue")          
+```
+```{r setup, include = FALSE}          
+          cor(x, y, method = c("pearson"))
+ggscatter(my_data, x = "Time", y = "Amplitude",
+   add = "reg.line",  # Add regressin line
+   conf.int = TRUE, # Add confidence interval
+   cor.coef = TRUE, cor.method = "pearson",xlab = "Time", ylab = "Amplitude")
+   cor.test(my_data$Time, my_data$Amplitude, method = "pearson")
 ```
 
 ## 1. Introduction
