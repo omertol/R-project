@@ -9,15 +9,15 @@ Spike list/Potential action - records of transfer electronic signals between neu
 The data contains six Excel files, each has 5 columns and more than 400,000 rows.
 <br/>
 Each row is a record of the time and voltage of a specific neuron that sent an electrical signal.
-
-Every Excel files describes different time periods of the research:
+The data is divided to time periods of the day and every Excel files describes different time period:
+<br/>
 1. Before treatment.
 2. Right after treatment.
 3. 4 hours after treatment.
 4. 5 hours from the moment the night started.
 5. 11 hours from the moment the night started.
 6. 18 hours from the moment the night started.
-
+<br/>
 Explanation for every column:
 1. "Investigator" and cloumn no.2 (missing name) - General information about the recording like: "Experiment Start Time" (date) and "Temperature" .
   "Investigator" - The title
