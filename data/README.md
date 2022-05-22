@@ -7,9 +7,10 @@
 Spike list/Potential action - records of transfer electronic signals between neurons.
 
 The data contains six Excel files, each of them have 5 columns and more than 400,000 rows.
-Each row is a record of the time and voltage of a specific neuron that sends an electrical signal.
+<br/>
+The rows is a records of the time and voltage of a specific neuron that sent an electrical signal.
 
-Every Excel files describes different time periods on the research:
+Every Excel files describes different time periods of the research:
 1. Before treatment.
 2. Right after treatment.
 3. 4 hours after treatment.
@@ -23,7 +24,7 @@ Explanation to every column:
 2. cloumn no.2 - The information
 3. "Time (s)" - Time record of transfer electronic signals by specific neuron, counted in seconds.
 4. "Electrode" - ID number of neuron who transfer electronic signals at the specific time. 
-    
+    <br/>
     Details :
     ID number has 2 parts (separated by a lower dash): 
     part no.1 - Petri dish number 
