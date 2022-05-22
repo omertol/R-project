@@ -15,7 +15,6 @@ Every Excel files describes different time periods on the research:
 4. 5 hours from the moment the night started.
 5. 11 hours from the moment the night started.
 6. 18 hours from the moment the night started.
-The records contains the time and the Petri dish number_Electrode number who transfering electronic signals, also called "potential action".
 
 Explanation to every column:
 1. "Investigator" and cloumn no.2 (missing name) - General information about the reserch like: "Experiment Start Time" (date) and "Temperature" .
@@ -23,6 +22,7 @@ Explanation to every column:
 2. cloumn no.2 - The information
 3. "Time (s)" - Time record of transfer electronic signals by specific neuron, counted in seconds.
 4. "Electrode" - ID number of neuron who transfer electronic signals at the specific time. 
+    
     Details :
     ID number has 2 parts (separated by a lower dash): 
     part no.1 - Petri dish number 
