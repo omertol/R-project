@@ -8,7 +8,7 @@ Spike list/Potential action - records of transfer electronic signals between neu
 
 The data contains six Excel files, each has 5 columns and more than 400,000 rows.
 <br/>
-Each row is a records of the time and voltage of a specific neuron that sent an electrical signal.
+Each row is a record of the time and voltage of a specific neuron that sent an electrical signal.
 
 Every Excel files describes different time periods of the research:
 1. Before treatment.
