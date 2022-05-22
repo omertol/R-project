@@ -38,16 +38,25 @@ Our approach is to find the correlation between different electrodes on a single
 
 
 ## 2. Data
-The data contains records of the time and the Petri dish number_Electrode number who transfering electronic signals.
-There are six excel files in the data and they are divided into different time periods on the research.
+The data contains records of: time, Petri number, Electrode number, Amplitude.
+When neuron trasfer electric signal, the amplitude is measured by the electrode and added to the data set.
+There are six excel files in the data and divided according to the different stages of the research. Each stage is a different time period during the day.
 The different time periods:
-1. Before treatment - 1 Excel file ; area code "bi"
+1. Before treatment - 1 Excel file ; area code "bl"
 2. During treatment - 2 Excel files ; area code "ac"
 3. After treatment (at night) - 3 Excel files ; area code "on"
 
 
 ## 3. Preliminary results
+The following graph shows the difference between electric signal sent during the day for a specific petri dish called "D4". 
+We can see how in different time period the electrodes record different amount of signals sent.
 
+For this specific petri dish we can learn that the treatment wasn't efficient in strengthen the connections between neurons and improving memory.
+
+The following graph shows the amplitude of the signals sent from one neuron during the day, as recorded by the electrode its on, for the same petri dish.
+Using the boxplot graph we can learn the maximum, mean and minimum of the voltage sent per electrode.
+
+The next table is the mean values of the amplitude discussed above.
 
 ## 4. Data analysis plan
 Our plan: 
