@@ -82,7 +82,7 @@ on_005_res <- get_petri(on_005)
 on_011_res <- get_petri(on_011)
 on_018_res <- get_petri(on_018)
 ```
-```{r}
+```{r, echo=FALSE}
 bl_d4 <- filter(bl_000_res, bl_000_res$Petri == "D4")
 ac_d4 <- filter(ac_004_res, ac_004_res$Petri == "D4")
 on_d4 <- filter(on_005_res, on_005_res$Petri == "D4")
@@ -90,7 +90,7 @@ on_d4 <- filter(on_005_res, on_005_res$Petri == "D4")
 1. The following graph shows the difference between electric signal sent during the day for a specific petri dish called "D4". 
 We can see how in different time period the electrodes record different amount of signals sent.
 
-```{r}
+```{r, echo=FALSE}
 bl_d4['file'] <- 'bl'
 ac_d4['file'] <- 'ac'
 on_d4['file'] <- 'on'
@@ -116,7 +116,7 @@ For this specific petri dish we can learn that the treatment wasn't efficient in
 2. The following graph shows the amplitude of the signals sent from one neuron during the day, as recorded by the electrode its on, for the same petri dish.
 Using the boxplot graph we can learn the maximum, mean and minimum of the voltage sent per electrode.
 
-```{r, height = 7, width = 10}
+```{r, height = 7, width = 10, echo=FALSE}
 all <- transform(all, Amplitude..mV. = as.numeric(Amplitude..mV.))
 ggplot(all, aes(x = Electrode, y=Amplitude..mV., fill= file)) +
   geom_boxplot() +
@@ -133,7 +133,7 @@ ggplot(all, aes(x = Electrode, y=Amplitude..mV., fill= file)) +
 ```
 
 3. The next table is the mean values of the amplitude discussed above.
-```{r}
+```{r, echo=FALSE}
 all_means <- all %>%
   group_by(Electrode, file) %>%
   summarise_at(vars("Amplitude..mV."), mean)
