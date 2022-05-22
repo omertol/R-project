@@ -4,7 +4,8 @@
 
 *The data:* 
 Spike list/Potential action - records of transfer electronic signals between neurons.
-The data contains six Excel files, each of them have 5 columns and more than 400,000 rows, 
+The data contains six Excel files, each of them have 5 columns and more than 400,000 rows.
+
 Every Excel files describes different time periods on the research:
 1. Before treatment.
 2. Right after treatment.
