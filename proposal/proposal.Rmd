@@ -38,13 +38,12 @@ Our approach is to find the correlation between different electrodes on a single
 
 
 ## 2. Data
-The data contains records of electronic signals who sends by neurons and divided includes six Excel files , each of them describes different time periods on the research.
+The data contains records of the time and the Petri dish number_Electrode number who transfering electronic signals.
+There are six excel files in the data and they are divided into different time periods on the research.
 The different time periods:
 1. Before treatment - 1 Excel file ; area code "bi"
 2. During treatment - 2 Excel files ; area code "ac"
 3. After treatment (at night) - 3 Excel files ; area code "on"
-Every Excel file contains records of the time and the Petri dish number_Electrode number who transfering electronic signals, also called "potential action".
-
 
 
 ## 3. Preliminary results
