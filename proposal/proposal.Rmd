@@ -34,10 +34,17 @@ Neurons are bred on a petri dish with electrodes in a laboratory. Every petri di
 The electrodes monitor and document every connection made in each of the petri dishes.
 Our specific problem is the last step to do so: for two specific drugs (AP5, FGL) we would like to determine whether they are efficient or not, and if so, which one is more efficient.
 
-Our approach is to find the correlation between different electrodes on a single petri dish and later to compare between the different perti dishes.
+Our approach is to find the correlation between different electrodes on a single petri dish and later to compare between the different petri dishes.
 
 
 ## 2. Data
+The data includes six Excel files , each of them is describes different time periods on the research.
+The different time periods:
+1. Before treatment - 1 Excel file ; area code "bi"
+2. During treatment - 2 Excel files ; area code "ac"
+3. After treatment (at night) - 3 Excel files ; area code "on"
+Every Excel file contains records of the time and the Petri dish number_Electrode number who transfering electronic signals, also called "potential action".
+
 
 
 ## 3. Preliminary results
@@ -59,13 +66,13 @@ After that we will analyze the correlation between different petri dishes.
 For this analysis, we will create a correlation matrix per petri, probably by Pearson's Correlation. We still need to determine which method to use to compare petri dished. 
 
 The correlation matrix will help us determine if the connections formed became stronger with treatment, and if so, we will be able to say the treatment help improve memory. 
-
+## הפסקה הבאה נלקחה לחלק 2- לדעתי אפשר למחוק (סתיו)
 The data is divided to 3 time periods:
 1. Before treatment
 2. During treatment
 3. After treatment (at night)
 
-Each group member will analyze one of these time periods. In the end, we will combine our conclusions in order to find the best treatment from the given ones.
+Each group member will analyze one of the time periods. In the end, we will combine our conclusions in order to find the best treatment from the given ones.
 
 ## Appendix
 
