@@ -9,10 +9,21 @@ library(knitr)
 library(tidyverse)
 library(broom)
 library(htmltools)
+library("ggpubr")
+my_data <- read.csv(" ", header=TRUE, stringsAsFactors=FALSE)
+head(my_data, " ")
 ```
 
 ```{r setup, include = FALSE}
 opts_chunk$set(echo=FALSE) # hide source code in the document
+library("ggpubr")
+ggqqplot(my_data$time, ylab = "Time")
+ggqqplot(my_data$amplitude, ylab = "Electrode")
+library("ggpubr")
+ggscatter(my_data, x = "Time", y = "Electrode", 
+          add = "reg.line", conf.int = TRUE, 
+          cor.coef = TRUE, cor.method = "pearson",
+          xlab = "Time", ylab = "Electrode")
 ```
 
 ## 1. Introduction
