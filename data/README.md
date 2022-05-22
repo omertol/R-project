@@ -3,6 +3,7 @@
 **Group P**
 
 *The data:* 
+<br/>
 Spike list/Potential action - records of transfer electronic signals between neurons.
 
 The data contains six Excel files, each of them have 5 columns and more than 400,000 rows.
@@ -17,7 +18,7 @@ Every Excel files describes different time periods on the research:
 6. 18 hours from the moment the night started.
 
 Explanation to every column:
-1. "Investigator" and cloumn no.2 (missing name) - General information about the reserch like: "Experiment Start Time" (date) and "Temperature" .
+1. "Investigator" and cloumn no.2 (missing name) - General information about the recording like: "Experiment Start Time" (date) and "Temperature" .
   "Investigator" - The title
 2. cloumn no.2 - The information
 3. "Time (s)" - Time record of transfer electronic signals by specific neuron, counted in seconds.
