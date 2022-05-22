@@ -4,7 +4,9 @@
 
 *The data:* 
 Spike list/Potential action - records of transfer electronic signals between neurons.
+
 The data contains six Excel files, each of them have 5 columns and more than 400,000 rows.
+Each row is a record of the time and voltage of a specific neuron that sends an electrical signal.
 
 Every Excel files describes different time periods on the research:
 1. Before treatment.
@@ -27,7 +29,7 @@ Explanation to every column:
     part no.2 - Electrode number
 5. "Amplitude (mV)" - Measurement of the voltage of electronic signals who created by neuron, measured in millivolt.
 
-At the end of the Excel file there is information about each Petri dish, such as: the type of treatment he received, activity, etc.
+At the end of the Excel file there is information about each Petri dish, such as: the type of treatment he received,Concentration, activity,etc.
 
 
   
