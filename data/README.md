@@ -24,6 +24,7 @@ Explanation for every column:
 2. cloumn no.2 - The information
 3. "Time (s)" - Time record of transfer electronic signals by specific neuron, counted in seconds.
 4. "Electrode" - ID number of neuron who transfer electronic signals at the specific time. 
+<br/>
     Details :
     ID number has 2 parts (separated by a lower dash): 
     part no.1 - Petri dish number 
