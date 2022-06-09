@@ -1,0 +1,93 @@
+---
+title: |
+  \textbf{The Differences Between Various Memory-Improvement Treatments on Neurons\\ using Multielectrode Array}
+author: "Team P"
+date: "19 June 2022"
+output:
+  pdf_document: default
+  html_document: default
+  word_document: default
+subtitle: Final Project Report
+editor_options:
+  markdown:
+    wrap: sentence
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+```
+
+```{r load-packages, message = FALSE, echo=FALSE}
+library(knitr)
+library(tidyverse)
+library(broom)
+library(htmltools)
+library(meaRtools)
+```
+
+```{=tex}
+\begin{center}
+Prof. Shira Knafo kindly agreed to share her research's "Understanding Neural Development\\ with Multielectrode Array" data with us, which was used for this project.\\ The code repository can be found \href{https://github.com/omertol/R-project}{here}
+\end{center}
+```
+## Introduction
+
+In general, memory is the process of encoding, storing, and retrieving experiences and knowledge.
+We would like to generally describe the process of forming a memory.
+This background will help us explain our project.
+Please note that in the following document, 'neurons' will only refer to those found in the brain, and not to those found in the nervous system.
+
+Different groups of neurons, responsible for different thoughts or perceptions, drift in and out of action.
+A 'group' (called a synapse) is formed when two neurons create a connection by transferring electric signals between one another.
+These connections can be made stronger or weaker depending on when and how often they have been activated in the past.
+Active connections tend to get stronger, whereas inactive ones get weaker and can eventually disappear entirely.
+Retrieving a memory is the reactivation of the specific synapse that was originally formed when the experience first happend.
+
+Throughout history, humans have always tried to improve the ability to strengthen the connections between neurons, while also creating new ones.
+The aim of the presented research is to find a drug that is proven to improve memory, meaning maintaining the current connections for a longer period of time, even when not used.
+Neurons are bred on a well with electrodes in a laboratory.
+Every well is given a different treatment at a different dosage.
+A few of them are the control group and are not given a treatment at all.
+The electrodes monitor and document every connection made in each of the wells.
+When a neuron send electric signal to another, an electric potential difference (voltage) is created and recorded by the electrodes.
+
+Our specific problem is the last step: we would like to determine whether the drugs (AP5, FGL) are efficient or not, and if so, which one is more efficient.
+Finding an efficient memory-improvement treatment, might be the right path to prevent Alzheimer and dementia.
+
+Our approach is to combine the different dataset for each episode of time, find the Pearson's correlation between different electrodes on a single well and to later compare between the different wells.
+
+## Data Overview
+
+We have 6 data files (.csv), produced automatically by the multielectrode array.
+Each recorded at different episodes of the experiment: before treatment (1 file, starts with bl), during treatment (2 files, starts with ac) and after treatment (during the night) (3 files, starts with on).
+
+Each of them contains 3 main features:
+
+-   Time (s) [Float]: Seconds passed from the start of the recording until a signal was sent.
+
+-   Electrode [String]: The electrode on which the neuron that sent the signal is placed.
+    \
+    This column contains the well's ID and the electrode's ID, separated by a lower dash as the following format: [Well name]\_[Electrode name]
+
+-   Amplitude (mV) [Float]: The electronic signals strength (voltage).
+
+Total of 6 wells, each contains 16 electrodes.
+Neurons activity was recorded at selected times during 24 hours for one hour each.
+
+The data also contains some additional information about the different wells, the research, the equipment used, etc.
+All of these are irrelevant to the problem were tackling.
+
+## Methods and Results
+
+## Limitations and Future Work
+
+Due to limited computing resources, we couldn't efficiently compute the correlations between the electrodes in the most accurate way.
+The data was too large for our personal computers and the other methods we found could not be applied to it due to its structure.
+Creating a dataset whereas each electrode has its own column generated a dataset bigger to the power of sixteen from its original size.
+Real-life data is obviously even bigger.
+Generalizing this solution beyond our sample, might need enormous computing resources.
+
+If we had more time, we would most definitely try to find a more accurate and efficient way to evaluate the connections between the synapses and implement it on the data using a more powerful resources.
+In addition, if we could use a better equipment, we would have extended the data files and duration of the recording for more accurate results.
+Moreover, prior work indicates there are more than one neuron on each electrode.
+With addition time, we would have consulted with the researcher on how to identify a single neuron in a synapse, and try to find the connection between the neurons themselves, rather than between a whole synapse to another.
