@@ -24,12 +24,6 @@ library(broom)
 library(htmltools)
 library(meaRtools)
 ```
-
-```{=tex}
-\begin{center}
-Prof. Shira Knafo kindly agreed to share her research's "Understanding Neural Development\\ with Multielectrode Array" data with us, which was used for this project.\\ The code repository can be found \href{https://github.com/omertol/R-project}{here}
-\end{center}
-```
 ## Introduction
 
 In general, memory is the process of encoding, storing, and retrieving experiences and knowledge.
@@ -91,3 +85,9 @@ If we had more time, we would most definitely try to find a more accurate and ef
 In addition, if we could use a better equipment, we would have extended the data files and duration of the recording for more accurate results.
 Moreover, prior work indicates there are more than one neuron on each electrode.
 With addition time, we would have consulted with the researcher on how to identify a single neuron in a synapse, and try to find the connection between the neurons themselves, rather than between a whole synapse to another.
+
+```{=tex}
+\begin{center}
+Prof. Shira Knafo kindly agreed to share her research's "Understanding Neural Development with Multielectrode Array" data with us, which was used for this project.\\ The code repository can be found \href{https://github.com/omertol/R-project}{here}
+\end{center}
+```
