@@ -24,6 +24,8 @@ library(broom)
 library(htmltools)
 library(meaRtools)
 ```
+The code repository can be found [here](https://github.com/omertol/R-project)
+
 ## Introduction
 
 In general, memory is the process of encoding, storing, and retrieving experiences and knowledge.
@@ -88,6 +90,6 @@ With addition time, we would have consulted with the researcher on how to identi
 
 ```{=tex}
 \begin{center}
-Prof. Shira Knafo kindly agreed to share her research's "Understanding Neural Development with Multielectrode Array" data with us, which was used for this project.\\ The code repository can be found \href{https://github.com/omertol/R-project}{here}
+Prof. Shira Knafo kindly agreed to share her research's "Understanding Neural Development with Multielectrode Array" data with us, which was used for this project.
 \end{center}
 ```
