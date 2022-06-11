@@ -89,6 +89,6 @@ With additional time and resources, first we would have consulted with prof. Kna
 
 ```{=tex}
 \begin{center}
-Special thanks to prof. Shira Knafo, who kindly agreed to share her research's "Understanding Neural Development with Multielectrode Array" data with us, which was used for this project.
+Special thanks to prof. Shira Knafo, who kindly agreed to share her research's "Understanding Neural Development with Multielectrode Array" data with us, which was used for this project, and helped us during its making.
 \end{center}
 ```
