@@ -72,6 +72,7 @@ Neurons activity was recorded at selected times during 24 hours for one hour eac
 
 The data also contains some additional information about the different wells, the research, the equipment used, etc.
 All of these are irrelevant to the problem were tackling.
+For additional information about the above, please refer to the `README.md` file in the `Data` folder in this project repository.
 
 ## Methods and Results
 
