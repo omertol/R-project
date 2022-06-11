@@ -84,9 +84,9 @@ Real-life data is obviously even bigger.
 Generalizing this solution beyond our sample, might need enormous computing resources.
 
 If we had more time, we would most definitely try to find a more accurate and efficient way to evaluate the connections between the synapses and implement it on the data using a more powerful resources.
-In addition, if we could use a better equipment, we would have extended the data files and duration of the recording for more accurate results.
+In addition, if we could use a better equipment, we would have extended the data files and duration of the recording for more accurate results, so we could conclude the treatments efficiency in the long run, and not only the 24 hours following the treatment.
 Moreover, prior work indicates there are more than one neuron on each electrode.
-With addition time, we would have consulted with the researcher on how to identify a single neuron in a synapse, and try to find the connection between the neurons themselves, rather than between a whole synapse to another.
+With addition time, we would have consulted with prof. Knafo on how to identify a single neuron in a synapse, and try to find the connection between the neurons themselves, rather than between a whole synapse to another.
 
 ```{=tex}
 \begin{center}
