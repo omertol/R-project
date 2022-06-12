@@ -1,0 +1,120 @@
+---
+title: "corr"
+output:
+  word_document: default
+  html_document: default
+  pdf_document: default
+date: '2022-06-06'
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r load-packages, message = FALSE}
+library(knitr)
+library(tidyverse)
+library(broom)
+library(htmltools)
+library(class)
+
+```
+
+```{r}
+#Load data
+list_df <- list.files("C:\\Users\\stavf\\Downloads\\my data files", pattern="*.csv", full.names=TRUE)
+df<-read.csv(file = "C:\\Users\\stavf\\Downloads\\Petri&Treatment.csv")[1:2]
+ldf <- lapply(list_df, read.csv)
+```
+
+```{r}
+get_petri <- function(df){
+  df_res <- df[c(3,4,5)]
+  df_res <- separate(df_res, col = "Electrode",
+           into = c("Petri", "Electrode"),
+           sep = "_")
+  df_res <- drop_na(df_res)
+  return(df_res)
+}
+
+filter_data<- function(data){
+  #only the first 10 minutes
+  data<- data %>% filter(data$Time..s.<=600)
+  data <- data %>% count(Petri)
+  return(data)
+}
+
+
+ldf <- lapply(ldf, get_petri)
+ldf <- lapply(ldf, filter_data)
+
+```
+
+```{r}
+df1 <- ldf[1]
+ldf <- ldf[2:length(ldf)]
+```
+
+```{r}
+get_df <- function(df1, df2){
+  
+  df1 <- df1 %>% data.frame()
+  df2 <- df2 %>% data.frame() 
+  
+  #create one df
+  tmp <- right_join(df1,df,by="Petri") 
+  tmp <- right_join(df2,tmp, by="Petri")
+  tmp[is.na(tmp)] <- 0 #replace na`s value with 0's
+  tmp$n <- as.numeric(tmp$n.y - tmp$n.x)
+  return(tmp[, c("Petri", "n", "Treatment")])
+
+}
+
+pairwise_knn <- function(join_df){
+  join_df <- join_df[,c("n", "Treatment")]
+  ran <- sample(1:nrow(join_df), 0.8 * nrow(join_df))
+  nor <-function(x) {
+    return ((x -min(x))/(max(x)-min(x)))
+    }
+    
+  ##Run normalization on first column of dataset because it is the predictor
+  join_df_norm <- as.data.frame(lapply(join_df[c(1)], nor))
+  train <- data.frame(join_df_norm[ran,])
+  test <- data.frame(join_df_norm[-ran,])
+  target<-as.factor(join_df[ran,2])
+  test_category <-as.factor( join_df[-ran,2])
+  
+  knn_model <- knn(train=train,test=test,cl=target, k=11)
+  
+  ##create confusion matrix
+  tab <- table(knn_model,test_category)
+  ##this function divides the correct predictions by total number of predictions that tell us how accurate teh model is.
+  accuracy <- function(x){
+    return(sum(diag(x)/(sum(rowSums(x)))) * 100)
+  }
+  
+  print(accuracy(tab))
+}
+
+```
+
+```{r}
+for(i in  ldf){
+  join_df <- get_df(df1,i)
+  df1 <- i
+  pairwise_knn(join_df)
+}
+
+```
+
+
+
+```{r}
+
+```
+
+
+
+
+
+
