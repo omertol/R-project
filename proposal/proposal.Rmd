@@ -51,17 +51,17 @@ The different time periods:
 
 ```{r, echo = FALSE}
 # Load the data
-bl_000 <- read.csv(file = "C:\\Users\\97250\\OneDrive - post.bgu.ac.il\\Desktop\\Education\\BGU\\Spring 2022\\Advanced Data Analysis in R\\Final Project\\R-project\\data\\bl div16(000)_spike_list.csv")
+bl_000 <- read.csv(file = "./data/bl div16(000)_spike_list.csv")
 
-ac_000 <- read.csv(file = "C:\\Users\\97250\\OneDrive - post.bgu.ac.il\\Desktop\\Education\\BGU\\Spring 2022\\Advanced Data Analysis in R\\Final Project\\R-project\\data\\ac div16(000)_spike_list.csv")
+ac_000 <- read.csv(file = "./data/ac div16(000)_spike_list.csv")
 
-ac_004 <- read.csv(file = "C:\\Users\\97250\\OneDrive - post.bgu.ac.il\\Desktop\\Education\\BGU\\Spring 2022\\Advanced Data Analysis in R\\Final Project\\R-project\\data\\ac div16(004)_spike_list.csv")
+ac_004 <- read.csv(file = "./data/ac div16(004)_spike_list.csv")
 
-on_005 <- read.csv(file = "C:\\Users\\97250\\OneDrive - post.bgu.ac.il\\Desktop\\Education\\BGU\\Spring 2022\\Advanced Data Analysis in R\\Final Project\\R-project\\data\\on div16(005)_spike_list.csv")
+on_005 <- read.csv(file = "./data/on div16(005)_spike_list.csv")
 
-on_011 <- read.csv(file = "C:\\Users\\97250\\OneDrive - post.bgu.ac.il\\Desktop\\Education\\BGU\\Spring 2022\\Advanced Data Analysis in R\\Final Project\\R-project\\data\\on div16(011)_spike_list.csv")
+on_011 <- read.csv(file = "./data/on div16(011)_spike_list.csv")
 
-on_018 <- read.csv(file = "C:\\Users\\97250\\OneDrive - post.bgu.ac.il\\Desktop\\Education\\BGU\\Spring 2022\\Advanced Data Analysis in R\\Final Project\\R-project\\data\\on div16(018)_spike_list.csv")
+on_018 <- read.csv(file = "./data/on div16(018)_spike_list.csv")
 ```
 
 ```{r, echo=FALSE}
