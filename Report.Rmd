@@ -78,14 +78,10 @@ For additional information about the above, please refer to the `README.md` file
 
 ## Limitations and Future Work
 
-Due to limited computing resources, we couldn't efficiently compute the correlations between the electrodes in the most accurate way.
-The data was too large for our personal computers and the other methods we found could not be applied to it due to its structure.
-Creating a dataset in which each electrode has its own column generated a dataset bigger to the power of sixteen from its original size.
-Real-life data is obviously even bigger.
-Moreover, prior work indicates there are more than one neuron on each electrode. Finding the correlation between electrodes indicates theres a connection between synapses, and could not indicate on the connections withn the synape itself, that might become stronger due to treatment.
-Generalizing this solution beyond our sample, might need enormous computing resources, and a more accurate way to map the connections between neurons.
+Prior work indicates there are more than one neuron per each electrode. Finding the correlation between electrodes teaches about the connections between synapses but could not teach about the connections within the synapse itself, that may become stronger due to the treatment.
+Generalizing this solution beyond our sample needs a more accurate way to map the connections between neurons, to further understand the treatments impact.
 
-With additional time and resources, first we would have consulted with prof. Knafo on how to identify a single neuron in a synapse, and try to find the connection between the neurons themselves, rather than between a whole synapse to another. Second, we would have tried to find a more accurate and efficient way to evaluate the connections between the neurons. Finally, we would have extended the duration of the recording for more accurate results. With these additional steps, we would have been able to conclude the treatments efficiency better not only during the 24 hours following the treatment, but for the long run.
+With additional time and resources, first we would have consulted with prof. Knafo on how to identify a single neuron in a synapse and try to find the connection between the neurons themselves, rather than between a whole synapse to another. Second, we would have tried to find and implement a more accurate and efficient method to evaluate the connections between the neurons. Finally, we would have extended the duration of the recording for more accurate results. With these additional steps, we would have been able to conclude the treatments efficiency better, not only during the 24 hours following the treatment, but for the long run.
 
 ```{=tex}
 \begin{center}
