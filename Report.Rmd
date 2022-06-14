@@ -54,8 +54,8 @@ Our approach is to combine the different dataset for each episode of time, find 
 
 ## Data Overview
 
-We have 9 data files (.csv), produced automatically by the multielectrode array.
-Each recorded at different episodes of the experiment: before treatment (1 file, starts with bl), during treatment (5 files, starts with ac) and after treatment (during the night) (3 files, starts with on).
+We have extended the amount of data we used for this project since the proposal was submitted and it is now includes 9 data files (.csv), produced automatically by the multielectrode array.
+Each recorded at different episodes of the experiment: before treatment (1 file, starts with bl), during treatment (5 files, starts with ac) and after treatment (during the night) (3 files, starts with on). The `README.md` was updated accordingly.
 
 Each of them contains 3 main features:
 
@@ -68,7 +68,7 @@ Each of them contains 3 main features:
 -   Amplitude (mV) [Float]: The electronic signals strength (voltage).
 
 Total of 24 wells, each contains 16 electrodes.
-Neurons activity was recorded at selected times during 24 hours for one hour each.
+Neurons activity was recorded at selected times during 24 hours for 11 minutes each.
 
 The data also contains some additional information about the different wells, the research, the equipment used, etc.
 All of these are irrelevant to the problem were tackling.
