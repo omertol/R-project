@@ -14,6 +14,7 @@ library(tidyverse)
 library(broom)
 library(htmltools)
 library(class)
+library(data.table)
 ```
 
 ```{r load data}
@@ -23,69 +24,141 @@ ldf <- lapply(list_df, read.csv)
 ```
 
 ```{r distance calculations}
-# Create data frame with electrode place when "11" is in (0,0)
-well <- data.frame(matrix(ncol = 3, nrow = 0))
-
-x <- 0
-
-for (i in 1:4){
-  y <- 0
-  for (j in 1:4){
-    well <- rbind(well, c(toString(i * 10 + j), x, y))
-    y <- y + 350
+if (file.exists("./data/wells distance.csv")){
+  well_dist <- read.csv("./data/wells distance.csv")
+} else {
+  # Create data frame with electrode place when "11" is in (0,0)
+  well <- data.frame(matrix(ncol = 3, nrow = 0))
+  
+  x <- 0
+  
+  for (i in 1:4){
+    y <- 0
+    for (j in 1:4){
+      well <- rbind(well, c(toString(i * 10 + j), x, y))
+      y <- y + 350
+    }
+    x <- x + 350
   }
-  x <- x + 350
+  
+  colnames(well) <- c("Electrode", "x", "y")
+  
+  # Create data frame with the distance between every pair of electrodes
+  well_dist <- data.frame(as.matrix(ceiling(dist(cbind(well$x, well$y)))))
+  colnames(well_dist) <- well$Electrode
+  well_dist["Electrode"] <- well$Electrode
+  
+  well_dist <- well_dist %>% select(1:16) %>% 
+    mutate(row.1 = 1:nrow(well_dist)) %>% 
+    mutate(y = well_dist$Electrode[row_number()]) %>%
+    gather(x, distance, 1:16) %>% 
+    select(x, y, distance)
+  
+  # Remove duplicates such as (11, 12), (12, 11)
+  well_dist <- well_dist %>% 
+    mutate(dup = !duplicated(t(apply(well_dist, 1, sort)))) %>%
+    filter(dup) %>% select(c("x", "y", "distance"))
+  
+  # Create and save a .csv file for future use
+  write.csv(well_dist,"./data/wells distance.csv", row.names = FALSE)
 }
-
-colnames(well) <- c("Electrode", "x", "y")
-
-# Create data frame with the distance between every pair of electrodes
-well_dist <- data.frame(as.matrix(ceiling(dist(cbind(well$x, well$y)))))
-colnames(well_dist) <- well$Electrode
-well_dist["Electrode"] <- well$Electrode
-
-well_dist <- well_dist %>% select(1:16) %>% 
-  mutate(row.1 = 1:nrow(well_dist)) %>% 
-  mutate(y = well_dist$Electrode[row_number()]) %>%
-  gather(x, distance, 1:16) %>% 
-  select(x, y, distance)
-
-# Remove duplicates such as (11, 12), (12, 11)
-well_dist <- well_dist %>% 
-  mutate(dup = !duplicated(t(apply(well_dist, 1, sort)))) %>%
-  filter(dup) %>% select(c("x", "y", "distance"))
-
-# Create and save a .csv file for future use
-write.csv(well_dist,"./data/wells distance.csv", row.names = FALSE)
 ```
 
 ```{r find wells and treatments, warning=FALSE}
-# Load one of the data files (arbitrarily) to extract the well information chart
-well_treat <- read.csv(file = "./data/spike data/ac div16(000)_spike_list.csv")
-
-# Find the chart in the file
-rnom <- as.numeric(which(well_treat == "Well Information"))
-well_treat <- fread(file = "./data/spike data/ac div16(000)_spike_list.csv", skip=rnom)
-
-
-# Select only well ID and treatment given
-well_treat <- well_treat[which(well_treat$`Well Information` == "Well" | 
-          well_treat$`Well Information` == "Treatment"),]
-
-# Transpose to a longer data frame and fix labeling
-well_treat <- data.frame(t(well_treat[,2:ncol(well_treat)]))
-rownames(well_treat) <- seq(1:nrow(well_treat))
-colnames(well_treat) <- c("Well", "Treatment")
-
-# Filter inactive wells
-well_treat <- well_treat[well_treat$Treatment != "Inactive",]
-
-# Create and save a .csv file for future use
-write.csv(well_treat,"./data/wells and treatment.csv", row.names = FALSE)
+if (file.exists("./data/wells and treatment.csv")){
+  well_treat <- read.csv("./data/wells and treatment.csv")
+} else {
+  # Load one of the data files (arbitrarily) to extract the well information chart
+  well_treat <- read.csv(file = "./data/spike data/ac div16(000)_spike_list.csv")
+  
+  # Find the chart in the file
+  rnom <- as.numeric(which(well_treat == "Well Information"))
+  well_treat <- fread(file = "./data/spike data/ac div16(000)_spike_list.csv", skip=rnom)
+  
+  
+  # Select only well ID and treatment given
+  well_treat <- well_treat[which(well_treat$`Well Information` == "Well" | 
+            well_treat$`Well Information` == "Treatment"),]
+  
+  # Transpose to a longer data frame and fix labeling
+  well_treat <- data.frame(t(well_treat[,2:ncol(well_treat)]))
+  rownames(well_treat) <- seq(1:nrow(well_treat))
+  colnames(well_treat) <- c("Well", "Treatment")
+  
+  # Filter inactive wells
+  well_treat <- well_treat[well_treat$Treatment != "Inactive",]
+  
+  # Create and save a .csv file for future use
+  write.csv(well_treat,"./data/wells and treatment.csv", row.names = FALSE)
+}
 ```
 
+```{r clean the data, message=FALSE}
+remove_inactive <- function(data){
+  data <- data[data$Electrode %like% paste(well_treat$Well, collapse = "|"),] 
+  return(data)
+}
 
+sep_wells <- function(df){
+  df_res <- df[c(3,4,5)]
+  df_res <- separate(df_res, col = "Electrode",
+           into = c("Well", "Electrode"),
+           sep = "_")
+  df_res <- drop_na(df_res)
+  return(df_res)
+}
 
+filter_data <- function(data){
+  #only the first 10 minutes
+  # data<- data %>% filter(data$Time..s.<=600)
+  data$Time..s. <- as.numeric(data$Time..s.)
+  return(data)
+}
 
+ldf <- lapply(ldf, remove_inactive)
+ldf <- lapply(ldf, sep_wells)
+ldf <- lapply(ldf, filter_data)
+```
 
+```{r correlation matrix per time period, message=FALSE}
+# Find correlation matrix for each well per each time period
+find_corr_mat <- function(file_df, well_id){
+  
+  well_df <- filter(file_df, file_df$Well == well_id)
+  elec_lst <- split(well_df, f = well_df$Electrode)
+  
+  if (dim(well_df[1]) == 0 || length(elec_lst) <= 1){
+    return(matrix(0, ncol=16, nrow=0))
+  }
+  
+  df <- data.frame(id= 1)
+  
+  # Create matrix with column per electrode, values are time signal was sent
+  for (i in elec_lst){
+    tmp <- i
+    tmp[,"id"] <- 1:nrow(tmp)
+    tmp <- tmp[,c("id", "Time..s.")]
+    colnames(tmp) <- c("id", i$Electrode[1])
+    df <- merge(df, tmp, by = "id", all = TRUE)
+  }
 
+  # Calculate the correlation matrix for this well
+  corr_mat <- cor(df[,!(colnames(df) %like% "id")],
+                  method = c("pearson"), 
+                  use="pairwise.complete.obs")
+  
+  corr_mat[is.na(corr_mat)] <- 0
+  return(corr_mat)
+}
+
+corr_df <- data.frame(expand.grid(file_id=seq(1:9), 
+                                  Well = well_treat$Well), 
+                      treatment = well_treat$Treatment)
+corr_mat_lst <- list()
+
+# Find correlation matrix for each well and each file of the data and append it to the correlation matrix list
+for (row in 1:nrow(corr_df)){
+  corr_mat_lst[[row]] <- find_corr_mat(ldf[[corr_df$file_id[row]]],
+                                     corr_df$Well[row])
+}
+```
