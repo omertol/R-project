@@ -1,1 +1,1 @@
-Here you should place the data files
+You should place the data files in this folder! :smile:
