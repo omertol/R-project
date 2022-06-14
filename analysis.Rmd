@@ -1,0 +1,91 @@
+---
+title: "analysis"
+output: html_document
+date: '2022-06-13'
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r load-packages, message = FALSE}
+library(knitr)
+library(tidyverse)
+library(broom)
+library(htmltools)
+library(class)
+```
+
+```{r load data}
+#Load data
+list_df <- list.files("./data/spike data", pattern="*.csv", full.names=TRUE)
+ldf <- lapply(list_df, read.csv)
+```
+
+```{r distance calculations}
+# Create data frame with electrode place when "11" is in (0,0)
+well <- data.frame(matrix(ncol = 3, nrow = 0))
+
+x <- 0
+
+for (i in 1:4){
+  y <- 0
+  for (j in 1:4){
+    well <- rbind(well, c(toString(i * 10 + j), x, y))
+    y <- y + 350
+  }
+  x <- x + 350
+}
+
+colnames(well) <- c("Electrode", "x", "y")
+
+# Create data frame with the distance between every pair of electrodes
+well_dist <- data.frame(as.matrix(ceiling(dist(cbind(well$x, well$y)))))
+colnames(well_dist) <- well$Electrode
+well_dist["Electrode"] <- well$Electrode
+
+well_dist <- well_dist %>% select(1:16) %>% 
+  mutate(row.1 = 1:nrow(well_dist)) %>% 
+  mutate(y = well_dist$Electrode[row_number()]) %>%
+  gather(x, distance, 1:16) %>% 
+  select(x, y, distance)
+
+# Remove duplicates such as (11, 12), (12, 11)
+well_dist <- well_dist %>% 
+  mutate(dup = !duplicated(t(apply(well_dist, 1, sort)))) %>%
+  filter(dup) %>% select(c("x", "y", "distance"))
+
+# Create and save a .csv file for future use
+write.csv(well_dist,"./data/wells distance.csv", row.names = FALSE)
+```
+
+```{r find wells and treatments, warning=FALSE}
+# Load one of the data files (arbitrarily) to extract the well information chart
+well_treat <- read.csv(file = "./data/spike data/ac div16(000)_spike_list.csv")
+
+# Find the chart in the file
+rnom <- as.numeric(which(well_treat == "Well Information"))
+well_treat <- fread(file = "./data/spike data/ac div16(000)_spike_list.csv", skip=rnom)
+
+
+# Select only well ID and treatment given
+well_treat <- well_treat[which(well_treat$`Well Information` == "Well" | 
+          well_treat$`Well Information` == "Treatment"),]
+
+# Transpose to a longer data frame and fix labeling
+well_treat <- data.frame(t(well_treat[,2:ncol(well_treat)]))
+rownames(well_treat) <- seq(1:nrow(well_treat))
+colnames(well_treat) <- c("Well", "Treatment")
+
+# Filter inactive wells
+well_treat <- well_treat[well_treat$Treatment != "Inactive",]
+
+# Create and save a .csv file for future use
+write.csv(well_treat,"./data/wells and treatment.csv", row.names = FALSE)
+```
+
+
+
+
+
+
