@@ -98,7 +98,6 @@ remove_inactive <- function(data){
   data <- data[data$Electrode %like% paste(well_treat$Well, collapse = "|"),] 
   return(data)
 }
-
 sep_wells <- function(df){
   df_res <- df[c(3,4,5)]
   df_res <- separate(df_res, col = "Electrode",
@@ -107,14 +106,12 @@ sep_wells <- function(df){
   df_res <- drop_na(df_res)
   return(df_res)
 }
-
 filter_data <- function(data){
   #only the first 10 minutes
   # data<- data %>% filter(data$Time..s.<=600)
   data$Time..s. <- as.numeric(data$Time..s.)
   return(data)
 }
-
 ldf <- lapply(ldf, remove_inactive)
 ldf <- lapply(ldf, sep_wells)
 ldf <- lapply(ldf, filter_data)
@@ -128,37 +125,65 @@ find_corr_mat <- function(file_df, well_id){
   elec_lst <- split(well_df, f = well_df$Electrode)
   
   if (dim(well_df[1]) == 0 || length(elec_lst) <= 1){
-    return(matrix(0, ncol=16, nrow=0))
+    df <- as.data.frame(matrix(ncol = 3, nrow = 0))
+    colnames(df) <- c("elec2", "elec1", "cor")
+    return(df)
   }
   
-  df <- data.frame(id= 1)
-  
-  # Create matrix with column per electrode, values are time signal was sent
-  for (i in elec_lst){
-    tmp <- i
-    tmp[,"id"] <- 1:nrow(tmp)
-    tmp <- tmp[,c("id", "Time..s.")]
-    colnames(tmp) <- c("id", i$Electrode[1])
-    df <- merge(df, tmp, by = "id", all = TRUE)
+  # Prepare data for merge
+  neat_df <- function(df){
+    name <- df$Electrode[1]
+    df[,"id"] <- 1:nrow(df)
+    df <- df[,c("id", "Time..s.")]
+    colnames(df) <- c("id", name)
+    return(df)
   }
-
+  
+  elec_lst <- lapply(elec_lst, neat_df)
+  df <- Reduce(function(x, y) merge(x, y, by = 'id', all = TRUE), elec_lst)
+  
   # Calculate the correlation matrix for this well
   corr_mat <- cor(df[,!(colnames(df) %like% "id")],
-                  method = c("pearson"), 
+                  method = "pearson", 
                   use="pairwise.complete.obs")
   
   corr_mat[is.na(corr_mat)] <- 0
-  return(corr_mat)
+  
+  # Convert correlation matrix to df
+  corr <- as.data.frame(corr_mat)
+  corr$elec2 <- as.numeric(row.names(corr))
+  corr <- gather(data = corr, key = "elec1", value = "cor", -elec2)
+  corr$elec1 <- as.numeric(corr$elec1)
+  return(corr)
 }
 
 corr_df <- data.frame(expand.grid(file_id=seq(1:9), 
-                                  Well = well_treat$Well), 
-                      treatment = well_treat$Treatment)
+                                  Well = well_treat$Well))
+corr_df <- merge(corr_df, well_treat, by="Well")
 corr_mat_lst <- list()
 
-# Find correlation matrix for each well and each file of the data and append it to the correlation matrix list
+# Find correlation matrix for each well and each data file 
+# and append it to the correlation matrix list
 for (row in 1:nrow(corr_df)){
   corr_mat_lst[[row]] <- find_corr_mat(ldf[[corr_df$file_id[row]]],
                                      corr_df$Well[row])
 }
+```
+
+```{r correlation mean by distance}
+# Bind the different data frames into one
+corr_mat_lst <- lapply(corr_mat_lst, function(x) left_join(well_dist,
+                                                           x, by=c("elec1", "elec2")))
+
+x <- apply(corr_df, 1, function(i) {
+    return(as.data.frame(matrix(i, nrow=136, ncol=3, byrow=TRUE)))})
+x <- rbindlist(x)
+y <- rbindlist(corr_mat_lst)
+y[is.na(y)] <- 0
+
+tmp <- cbind(x,y)
+colnames(tmp) <- c("Well", "file_id", "Treatment", "elec1","elec2", "distance","corr")
+tmp[is.na(tmp)] <- 0
+
+tmp <- tmp %>% group_by(file_id, Treatment, distance) %>% summarise_at(vars(corr), mean)
 ```
