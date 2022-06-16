@@ -26,6 +26,7 @@ ldf <- lapply(list_df, read.csv)
 ```{r distance calculations}
 if (file.exists("./data/wells distance.csv")){
   well_dist <- read.csv("./data/wells distance.csv")
+  well_dist <- as.data.frame(lapply(well_dist, as.numeric))
 } else {
   # Create data frame with electrode place when "11" is in (0,0)
   well <- data.frame(matrix(ncol = 3, nrow = 0))
@@ -50,14 +51,16 @@ if (file.exists("./data/wells distance.csv")){
   
   well_dist <- well_dist %>% select(1:16) %>% 
     mutate(row.1 = 1:nrow(well_dist)) %>% 
-    mutate(y = well_dist$Electrode[row_number()]) %>%
-    gather(x, distance, 1:16) %>% 
-    select(x, y, distance)
+    mutate(elec2 = well_dist$Electrode[row_number()]) %>%
+    gather(elec1, distance, 1:16) %>% 
+    select(elec2, elec1, distance)
   
   # Remove duplicates such as (11, 12), (12, 11)
   well_dist <- well_dist %>% 
     mutate(dup = !duplicated(t(apply(well_dist, 1, sort)))) %>%
-    filter(dup) %>% select(c("x", "y", "distance"))
+    filter(dup) %>% select(c("elec1", "elec2", "distance"))
+  
+  well_dist <- as.data.frame(lapply(well_dist, as.numeric))
   
   # Create and save a .csv file for future use
   write.csv(well_dist,"./data/wells distance.csv", row.names = FALSE)
@@ -96,6 +99,7 @@ if (file.exists("./data/wells and treatment.csv")){
 ```{r clean the data, message=FALSE}
 remove_inactive <- function(data){
   data <- data[data$Electrode %like% paste(well_treat$Well, collapse = "|"),] 
+  data$Time..s. <- as.numeric(data$Time..s.)
   return(data)
 }
 sep_wells <- function(df){
@@ -108,13 +112,12 @@ sep_wells <- function(df){
 }
 filter_data <- function(data){
   #only the first 10 minutes
-  # data<- data %>% filter(data$Time..s.<=600)
-  data$Time..s. <- as.numeric(data$Time..s.)
+  data<- data %>% filter(data$Time..s.<=600) 
   return(data)
 }
+ldf <- lapply(ldf, filter_data)
 ldf <- lapply(ldf, remove_inactive)
 ldf <- lapply(ldf, sep_wells)
-ldf <- lapply(ldf, filter_data)
 ```
 
 ```{r correlation matrix per time period, message=FALSE}
@@ -170,7 +173,7 @@ for (row in 1:nrow(corr_df)){
 }
 ```
 
-```{r correlation mean by distance}
+```{r mean correlation by distance}
 # Bind the different data frames into one
 corr_mat_lst <- lapply(corr_mat_lst, function(x) left_join(well_dist,
                                                            x, by=c("elec1", "elec2")))
@@ -181,9 +184,9 @@ x <- rbindlist(x)
 y <- rbindlist(corr_mat_lst)
 y[is.na(y)] <- 0
 
-tmp <- cbind(x,y)
-colnames(tmp) <- c("Well", "file_id", "Treatment", "elec1","elec2", "distance","corr")
-tmp[is.na(tmp)] <- 0
+anov_ <- cbind(x,y)
+colnames(anov_) <- c("Well", "file_id", "treatment", "elec1","elec2", "distance","corr")
+anov_[is.na(anov_)] <- 0
 
-tmp <- tmp %>% group_by(file_id, Treatment, distance) %>% summarise_at(vars(corr), mean)
+anov_ <- anov_ %>% group_by(file_id, treatment, distance) %>% summarise_at(vars(corr), mean)
 ```
