@@ -15,6 +15,7 @@ library(broom)
 library(htmltools)
 library(class)
 library(data.table)
+library(AICcmodavg)
 ```
 
 ```{r load data}
@@ -25,9 +26,11 @@ ldf <- lapply(list_df, read.csv)
 
 ```{r distance calculations}
 if (file.exists("./data/wells distance.csv")){
+  
   well_dist <- read.csv("./data/wells distance.csv")
   well_dist <- as.data.frame(lapply(well_dist, as.character))
   well_dist$distance <- as.numeric(well_dist$distance)
+  
 } else {
   # Create data frame with electrode place when "11" is in (0,0)
   well <- data.frame(matrix(ncol = 3, nrow = 0))
@@ -53,7 +56,7 @@ if (file.exists("./data/wells distance.csv")){
   well_dist <- well_dist %>% select(1:16) %>% 
     mutate(row.1 = 1:nrow(well_dist)) %>% 
     mutate(elec2 = well_dist$Electrode[row_number()]) %>%
-    gather(elec1, distance, 1:16) %>% 
+    pivot_longer(names_to="elec1", values_to="distance", cols=1:16) %>% 
     select(elec2, elec1, distance)
   
   # Remove duplicates such as (11, 12), (12, 11)
@@ -97,20 +100,20 @@ if (file.exists("./data/wells and treatment.csv")){
 
 ```{r clean the data, message=FALSE}
 remove_inactive <- function(data){
-  data <- data[data$Electrode %like% paste(well_treat$Well, collapse = "|"),] 
+  data <- data[c(3,4,5)]
   #only the first 10 minutes
   data<- data %>% filter(data$Time..s.<=600) 
+  data <- data[data$Electrode %like% paste(well_treat$Well, collapse = "|"),] 
   data$Time..s. <- as.numeric(data$Time..s.)
   return(data)
 }
 
 sep_wells <- function(df){
-  df_res <- df[c(3,4,5)]
-  df_res <- separate(df_res, col = "Electrode",
+  df <- separate(df, col = "Electrode",
            into = c("Well", "Electrode"),
            sep = "_")
-  df_res <- drop_na(df_res)
-  return(df_res)
+  df <- drop_na(df)
+  return(df)
 }
 
 ldf <- lapply(ldf, remove_inactive)
@@ -124,11 +127,23 @@ find_corr_mat <- function(file_df, well_id, file_id){
   well_df <- filter(file_df, file_df$Well == well_id)
   elec_lst <- split(well_df, f = well_df$Electrode)
   
-  if (dim(well_df[1]) == 0 || length(elec_lst) <= 1){
-    df <- as.data.frame(matrix(c(NA, NA, NA, well_id, file_id), ncol = 5, nrow = 1))
-    colnames(df) <- c("elec2", "elec1", "corr", "well_id", "file_id")
+  # One or less electrodes sent signal for specific well
+  if (dim(well_df) == 0 || length(elec_lst) <= 1){
+    
+    df <- well_dist
+    df[,"corr"] <- 0
+    df[, "well_id"] <- well_id
+    df[, "file_id"] <- file_id
+    
+    if (length(elec_lst) == 1){
+      
+      elec <- elec_lst[[1]]$Electrode[1]
+      df[which(df$elec2 == df$elec1 & df$elec1 == elec), "corr"] <- 1
+      
+      }
+    
     return(df)
-  }
+    }
   
   # Prepare data for merge
   neat_df <- function(df){
@@ -137,7 +152,7 @@ find_corr_mat <- function(file_df, well_id, file_id){
     df <- df[,c("id", "Time..s.")]
     colnames(df) <- c("id", name)
     return(df)
-  }
+    }
   
   elec_lst <- lapply(elec_lst, neat_df)
   df <- Reduce(function(x, y) merge(x, y, by = 'id', all = TRUE), elec_lst)
@@ -152,11 +167,19 @@ find_corr_mat <- function(file_df, well_id, file_id){
   # Convert correlation matrix to df
   corr <- as.data.frame(corr_mat)
   corr$elec2 <- row.names(corr)
-  corr <- gather(data = corr, key = "elec1", value = "corr", -elec2)
+  corr <- pivot_longer(data = corr, 
+                       names_to = "elec1", 
+                       values_to = "corr", 
+                       cols=-elec2)
+  
+  # Add missing electrodes and distance
+  corr <- left_join(well_dist, corr, by=c("elec1", "elec2"))
+
   corr[,"well_id"] <- well_id
   corr[,"file_id"] <- file_id
+
   return(corr)
-}
+  }
 
 # Correlation df for a given well
 f1 <- function(well_id) {
@@ -172,8 +195,7 @@ corr_df <- rbindlist(sapply(well_treat$Well, f1, simplify = FALSE))
 ```
 
 ```{r mean correlation by distance}
-# Add the distance column to the correlation data frame
-corr_df <- right_join(well_dist, corr_df, by=c("elec1", "elec2"))
+corr_df[is.na(corr_df)] <- 0
 
 corr_df <- corr_df %>% rowwise() %>%
   mutate(treatment = well_treat$Treatment[well_treat$Well == well_id])
@@ -182,4 +204,82 @@ corr_df <- corr_df %>% rowwise() %>%
 corr_df <- corr_df %>% group_by(file_id, treatment, distance) %>% 
   mutate(corr = as.numeric(corr)) %>%
   summarise_at(vars(corr), mean)
+```
+
+```{r prepare data for ANOVA tests}
+tmp <- corr_df
+tmp$file_id <- as.numeric(tmp$file_id)
+
+tmp <- tmp %>% mutate(time_p = case_when(file_id == 1 ~ "Before",
+                                         between(file_id, 2, 4) ~ "During",
+                                         file_id >= 5 ~ "After"))
+
+tmp <- tmp[, c("treatment", "distance", "corr", "time_p")]
+```
+
+```{r additive two-way ANOVA}
+two_way <- aov(corr~treatment + time_p,tmp)
+summary(two_way)
+```
+
+```{r two-way ANOVA with interaction}
+interaction <- aov(corr ~ treatment * time_p,tmp)
+summary(interaction)
+```
+
+```{r AIC's method to find best fitted ANOVA of two}
+model.set <- list(two_way, interaction)
+model.names <- c("two way", "interaction")
+
+aictab(model.set, modnames = model.names)
+```
+
+```{r determine fit of the model, width=2}
+two_way_model <- lm(corr ~ treatment * time_p, tmp)
+par(mfrow = c(1,2))
+fig1 <- plot(two_way_model, c(1,2), add.smooth = FALSE)
+```
+
+```{r ANOVA tests with distance}
+three_way_interaction <- aov(corr ~ treatment * time_p * as.factor(distance), tmp)
+summary(three_way_interaction)
+
+two_way_distance <- aov(corr ~ treatment * time_p + as.factor(distance), tmp)
+summary(two_way_distance)
+```
+
+```{r AIC's method to find best fitted ANOVA of four}
+model.set <- list(two_way, interaction, three_way_interaction, two_way_distance)
+model.names <- c("two way anova", "interaction", "three way anova", "two way with distance")
+
+aictab(model.set, modnames = model.names)
+```
+
+```{r determine fit of the model}
+two_way_distance_model <- lm(corr ~ treatment * time_p + distance, tmp)
+par(mfrow = c(1,2))
+fig2 <- plot(two_way_distance_model, c(1,2), add.smooth = FALSE)
+```
+
+```{r Tukey’s Test for multiple comparisons}
+tbl1 <- as.data.frame(TukeyHSD(two_way_distance, which = c("treatment"))[[1]])
+
+tbl2 <- as.data.table(TukeyHSD(two_way_distance, which = c("treatment:time_p"))[[1]], 
+                                  keep.rownames = TRUE)
+
+tbl2 <- separate(tbl2,
+                             col = 1,
+                             into = c("t1", "t2"),
+                             sep = "-") %>% 
+  separate(col = 2,
+           into = c("treatment2", "time2"),
+           sep = ":") %>% 
+  separate(col = 1,
+           into= c("treatment1", "time1"), 
+           sep = ":")
+
+tbl2 <- tbl2[treatment1 == treatment2 & time1 == "Before" & time2 == "After",
+                                     c(1,2,4,5,6,7,8)]
+tbl1
+tbl2
 ```
