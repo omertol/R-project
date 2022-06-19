@@ -1,5 +1,5 @@
 ---
-title: "corr"
+title: "KNN"
 output:
   word_document: default
   html_document: default
@@ -22,9 +22,10 @@ library(class)
 
 ```{r}
 #Load data
-list_df <- list.files("C:\\Users\\stavf\\Downloads\\my data files", pattern="*.csv", full.names=TRUE)
-df<-read.csv(file = "C:\\Users\\stavf\\Downloads\\Petri&Treatment.csv")[1:2]
+list_df <- list.files("./data", pattern="*.csv", full.names=TRUE)
+df<-read.csv(file = "./Petri&Treatment.csv")[1:2]
 ldf <- lapply(list_df, read.csv)
+
 ```
 
 ```{r}
@@ -84,7 +85,7 @@ pairwise_knn <- function(join_df){
   target<-as.factor(join_df[ran,2])
   test_category <-as.factor( join_df[-ran,2])
   
-  knn_model <- knn(train=train,test=test,cl=target, k=11)
+  knn_model <- knn(train=train,test=test,cl=target, k=10)
   
   ##create confusion matrix
   tab <- table(knn_model,test_category)
@@ -108,10 +109,6 @@ for(i in  ldf){
 ```
 
 
-
-```{r}
-
-```
 
 
 
