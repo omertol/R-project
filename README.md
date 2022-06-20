@@ -1,4 +1,5 @@
-# The Differences Between Various Memory-Improvement Treatments on Neurons using Multielectrode Array
+# The Differences Between Various Memory-Improvement 
+# Treatments on Neurons using Multielectrode Array
 ### Advanced Data Analysis in R
 
 This is a R-language project which was created as part of "Advanced Data Analysis in R" course in Ben Gurion University, Israel. 
