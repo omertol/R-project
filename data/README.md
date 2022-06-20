@@ -1,6 +1,5 @@
 # SISE2601 Project data description
-================
-**Team P**
+### **Team P**
 
 *The data:* 
 <br/>
