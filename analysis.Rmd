@@ -16,6 +16,10 @@ library(htmltools)
 library(class)
 library(data.table)
 library(AICcmodavg)
+library(ggplot2)
+library(dplyr)
+library(hrbrthemes)
+library(viridis)
 ```
 
 ```{r load data}
@@ -99,20 +103,20 @@ if (file.exists("./data/wells and treatment.csv")){
 ```
 
 ```{r clean the data, message=FALSE}
-remove_inactive <- function(data){
-  data <- data[c(3,4,5)]
-  #only the first 10 minutes
-  data<- data %>% filter(data$Time..s.<=600) 
-  data <- data[data$Electrode %like% paste(well_treat$Well, collapse = "|"),] 
-  data$Time..s. <- as.numeric(data$Time..s.)
-  return(data)
+remove_inactive <- function(df){
+  df <- df[c(3,4,5)]
+  df <- drop_na(df)
+  #only the first 11 minutes
+  df<- df %>% filter(df$Time..s.<=660) 
+  df <- df[df$Electrode %like% paste(well_treat$Well, collapse = "|"),] 
+  df$Time..s. <- as.numeric(df$Time..s.)
+  return(df)
 }
 
 sep_wells <- function(df){
   df <- separate(df, col = "Electrode",
            into = c("Well", "Electrode"),
            sep = "_")
-  df <- drop_na(df)
   return(df)
 }
 
@@ -183,7 +187,7 @@ find_corr_mat <- function(file_df, well_id, file_id){
 
 # Correlation df for a given well
 f1 <- function(well_id) {
-  x <- sapply(seq(1:9), function(file_id) find_corr_mat(ldf[[file_id]]
+  x <- sapply(seq(1:length(ldf)), function(file_id) find_corr_mat(ldf[[file_id]]
                                                         ,well_id,
                                                         file_id),
               simplify = FALSE)
@@ -195,15 +199,16 @@ corr_df <- rbindlist(sapply(well_treat$Well, f1, simplify = FALSE))
 ```
 
 ```{r mean correlation by distance}
-corr_df[is.na(corr_df)] <- 0
-
-corr_df <- corr_df %>% rowwise() %>%
-  mutate(treatment = well_treat$Treatment[well_treat$Well == well_id])
+corr_df$corr[is.na(corr_df$corr)] <- 0
 
 # Calculate mean correlation for each distance
-corr_df <- corr_df %>% group_by(file_id, treatment, distance) %>% 
+corr_df <- corr_df %>% group_by(file_id, treatment, well_id, distance) %>%
   mutate(corr = as.numeric(corr)) %>%
   summarise_at(vars(corr), mean)
+
+# Add treatment column
+corr_df <- corr_df %>% rowwise() %>%
+  mutate(treatment = well_treat$Treatment[well_treat$Well == well_id])
 ```
 
 ```{r prepare data for ANOVA tests}
@@ -211,8 +216,8 @@ tmp <- corr_df
 tmp$file_id <- as.numeric(tmp$file_id)
 
 tmp <- tmp %>% mutate(time_p = case_when(file_id == 1 ~ "Before",
-                                         between(file_id, 2, 4) ~ "During",
-                                         file_id >= 5 ~ "After"))
+                                         between(file_id, 2, 6) ~ "Right After",
+                                         file_id >= 7 ~ "Over Night"))
 
 tmp <- tmp[, c("treatment", "distance", "corr", "time_p")]
 ```
@@ -235,9 +240,26 @@ aictab(model.set, modnames = model.names)
 ```
 
 ```{r determine fit of the model, width=2}
+# two_way_model <- lm(corr ~ treatment * time_p, tmp)
+# fig1_data <- data.frame(x=two_way_model$fitted.values, 
+#                         y=two_way_model$residuals,
+#                         stres= rstandard(two_way_model),
+#                         )
+# 
+# fig1 <- fig1_data %>% ggplot(aes(x = x, y=y)) +
+#   geom_point() + 
+#   labs(
+#     x= "Fitted Values",
+#     y= "Residuals",
+#     title = " Fitted Values vs. Residuals", 
+#     caption = "Fig.1"
+#   ) + 
+#   theme_light() 
+# fig1
+
 two_way_model <- lm(corr ~ treatment * time_p, tmp)
 par(mfrow = c(1,2))
-fig1 <- plot(two_way_model, c(1,2), add.smooth = FALSE)
+plot(two_way_model, c(1,2), add.smooth = FALSE)
 ```
 
 ```{r ANOVA tests with distance}
@@ -256,15 +278,15 @@ aictab(model.set, modnames = model.names)
 ```
 
 ```{r determine fit of the model}
-two_way_distance_model <- lm(corr ~ treatment * time_p + distance, tmp)
+three_way_model <- lm(corr ~ treatment * time_p + distance, tmp)
 par(mfrow = c(1,2))
-fig2 <- plot(two_way_distance_model, c(1,2), add.smooth = FALSE)
+plot(three_way_model, c(1,2), add.smooth = FALSE)
 ```
 
 ```{r Tukey’s Test for multiple comparisons}
-tbl1 <- as.data.frame(TukeyHSD(two_way_distance, which = c("treatment"))[[1]])
+tbl1 <- as.data.frame(TukeyHSD(three_way_interaction, which = c("treatment"))[[1]])
 
-tbl2 <- as.data.table(TukeyHSD(two_way_distance, which = c("treatment:time_p"))[[1]], 
+tbl2 <- as.data.table(TukeyHSD(three_way_interaction, which = c("treatment:time_p"))[[1]], 
                                   keep.rownames = TRUE)
 
 tbl2 <- separate(tbl2,
@@ -278,19 +300,31 @@ tbl2 <- separate(tbl2,
            into= c("treatment1", "time1"), 
            sep = ":")
 
-tbl2 <- tbl2[treatment1 == treatment2 & time1 == "Before" & time2 == "After",
-                                     c(1,2,4,5,6,7,8)]
+tbl2 <- tbl2[treatment1 == treatment2, c(1,2,4,5,6,7,8)]
+
 tbl1
 tbl2
 ```
+
 ```{r Graph per treatment, fig.height=2, fig.width=7}
-library(ggplot2)
+fig3_data <- tmp %>% 
+  group_by(time_p, treatment, distance) %>% 
+  summarise_at(vars(corr), mean)
 
-library(dplyr)
-library(hrbrthemes)
-library(viridis)
-tmp <- tmp %>% group_by(time_p, treatment, distance) %>% summarise_at(vars(corr), mean)
+fig3 <- ggplot(transform(fig3_data,
+                         treatment = factor(treatment,levels = c("Control","AP5","FGL")),
+                         time_p = factor(time_p,levels = c("Before","During","After"))),
+               aes(x=distance,
+                   y=corr,
+                   color=time_p,
+                   group=time_p)) +
+  geom_line()+
+  facet_wrap(~treatment)+
+  theme_ipsum()+
+  labs(
+    x="Distance(μm)",
+    y="Correlation",
+    color="Time")
 
-ggplot(transform(tmp,treatment=factor(treatment,levels = c("Control","AP5","FGL")),time_p=factor(time_p,levels = c("Before","During","After"))), aes(x=distance, y=corr,color=time_p,group=time_p)) +
-geom_line()+facet_wrap(~treatment)+theme_ipsum()+labs(x="Distance(μm)" ,y="Correlation", color="Time")
+fig3
 ```
