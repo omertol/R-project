@@ -13,20 +13,18 @@ The output of this file is identical to the results we presented in the report s
 Please note that the KNN model is not part of the final results due to accuracy issues. If you would like to test its results, the same steps should be applied, just run the `KNN.Rmd` instead!
 
 ### The data:
-<br/>
+
 Spike list/Potential action - records of transfer electronic signals between neurons.
 
-The data contains six Excel files, each has 5 columns and more than 400,000 rows.
+The data contains 24 Excel files, produced automatically from the electrode array at selected times for 24 hours. 
+Each has 5 columns and more than 400,000 rows.
 <br/>
 Each row is a record of the time and voltage of a specific neuron that sent an electrical signal.
 The data is divided to time periods of the day and every Excel files describes different time period:
 
 1. Before treatment.
-2. The hour following the treatment.
-3. 4 hours after treatment.
-4. 5 hours from the moment the night started.
-5. 11 hours from the moment the night started.
-6. 18 hours from the moment the night started.
+2. 4 hours following the treatment.
+3. 19 hours after the treatment, from the moment the night started.
 
 Each file contains the following columns:
 1. "Investigator" and column no.2 (missing name) - General information about the recording, such as: "Experiment Start Time" (date), "Temperature", system specifications and setting, etc.
