@@ -40,5 +40,5 @@ Each file contains the following columns:
     
 5. "Amplitude (mV)" - Measurement of the voltage of electronic signals who created by neuron, measured in millivolt.
 
-At the end of the file there is information about each well, such as: the well's color, whether it is activated or not, the name of the treatment it received, dosage and whether its a control well or not.
+At the end of the file there is information about each well, such as: the well's color, whether it is activated or not, the name of the treatment it received, dosage and whether its part of the control group or not.
 
