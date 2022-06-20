@@ -283,3 +283,14 @@ tbl2 <- tbl2[treatment1 == treatment2 & time1 == "Before" & time2 == "After",
 tbl1
 tbl2
 ```
+```{r Graph per treatment, fig.height=2, fig.width=7}
+library(ggplot2)
+
+library(dplyr)
+library(hrbrthemes)
+library(viridis)
+tmp <- tmp %>% group_by(time_p, treatment, distance) %>% summarise_at(vars(corr), mean)
+
+ggplot(transform(tmp,treatment=factor(treatment,levels = c("Control","AP5","FGL")),time_p=factor(time_p,levels = c("Before","During","After"))), aes(x=distance, y=corr,color=time_p,group=time_p)) +
+geom_line()+facet_wrap(~treatment)+theme_ipsum()+labs(x="Distance(μm)" ,y="Correlation", color="Time")
+```
