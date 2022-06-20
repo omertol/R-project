@@ -1,8 +1,6 @@
 ---
 title: |
   \textbf{The Differences Between Various Memory-Improvement Treatments on Neurons\\ using Multielectrode Array}
-author: "Team P"
-date: "19 June 2022"
 output:
   pdf_document: default
   html_document: default
@@ -32,31 +30,28 @@ The code repository can be found \href{https://github.com/omertol/R-project}{her
 
 ## Introduction
 
-In general, memory is the process of encoding, storing, and retrieving experiences and knowledge.
-We would like to generally describe the process of forming a memory.
-This background will help us explain our project.
-Please note that in the following document, 'neurons' will only refer to those found in the brain, and not to those found in the nervous system.
+The main goal of prof. Knafo research is to find a drug that is proven to improve memory.
+
+First, we would like to generally describe the process of forming a memory.
+Please note that in the following document, 'neurons' will only refer to those found in the brain.
 
 Different groups of neurons, responsible for different thoughts or perceptions, drift in and out of action.
 A 'group' (called a synapse) is formed when two neurons create a connection by transferring electric signals between one another.
-These connections can be made stronger or weaker depending on when and how often they have been activated in the past.
 Active connections tend to get stronger, whereas inactive ones get weaker and can eventually disappear entirely.
-Retrieving a memory is the reactivation of the specific synapse that was originally formed when the experience first happend.
+Retrieving a memory is the reactivation of the specific synapse that was originally formed when the experience first happened.
 
-The aim of prof. Knafo research is to find a drug that is proven to improve memory, meaning maintaining the current connections for a longer period of time, even when not used.
-Neurons are bred in a well with electrodes in a laboratory. Each well is given a different treatment at a different dosage.A few of them are the control group and are not given a treatment at all.
+In the research's laboratory, neurons are bred in a well with electrodes. Each well is given one of two treatments. A few of them are the control group and are not given a treatment at all.
 The electrodes monitor and document every connection made in each of the wells.
 When a neuron sends an electric signal to another neuron, an electric potential difference (voltage) is created and recorded by the electrodes.
 
 The problem we are tackling is the last step of the process: we would like to determine whether the drugs (AP5, FGL) are efficient or not, and if so, which one is more efficient.
-Finding an efficient memory-improvement treatment might be the right path to prevent Alzheimer's Disease and dementia.
 
-Our approach is to first clean and combine the different datasets for each episode of time. Then, we will find the Pearson's correlation between different electrodes on a single well. Finally, we will compare the different wells using ANOVA tests and perform a post-hoc test in the Tukey method.
+Our approach is to find the Pearson's correlation between different electrodes on a single well. Later, we will compare the different wells using ANOVA tests and perform a post-hoc test in the Tukey method.
 
 ## Data Overview
 
-We have extended the amount of data we used for this project since the proposal was submitted and it now includes 9 data files (.csv), produced automatically by the multielectrode array.
-Each file was recorded at different episodes of the experiment: before treatment (1 file, starts with bl); during treatment (5 files, starts with ac); after treatment (during the night) (3 files, starts with on). The `README.md` was updated accordingly.
+We have extended the amount of data we used for this project since the proposal was submitted and it now includes 24 data files (.csv), produced automatically by the multielectrode array.
+Each file was recorded at different episodes of the experiment: before treatment (1 file, starts with bl); first hours following the treatment (5 files, starts with ac); over night after treatment (18 files, starts with on). The `README.md` file was updated accordingly.
 
 Each of them contains 3 main features:
 
@@ -74,7 +69,7 @@ For additional information about the above, please refer to the `README.md` file
 
 ## Methods and Results
 
-At first, we attempted to find the answer to our research question using a KNN model. Our hypotheses was that each treatment may encourage a change in the neurons firing rate. We calculated the change in firing rate based on treatment, but model accuracy was low. It could not accurately predict the type of treatment given.
+At first, we attempted to find the answer to our research question using a KNN model. Our hypotheses was that each treatment may encourage a change in the neurons firing rate. We calculated the said change depending on treatment, but model accuracy was low. It could not accurately predict the type of treatment given.
 
 We concluded that the change in firing rate is not a way to measure the treatment's efficiency. An electrode might send signals consistently but with no response.
 
@@ -98,7 +93,7 @@ To choose the best fitted model for our data between the two, we used AIC's meth
 Yet, by diagnosing the regression's plots (fig.1), we can see that the residuals values are no randomized and the normal probability plot is not linear. Therefore the model is not well-fitted to the data.
 
 ```{r}
-# fig1
+fig1
 ```
 
 To improve the fit, we decided to examine how the distance between the electrodes within the well effect the correlation. The additional null hypotheses we wish to test were: 
@@ -108,19 +103,19 @@ To improve the fit, we decided to examine how the distance between the electrode
 3. The interaction between time period and distance does not effect the correlation.
 4. The interaction between time period, treatment and distance does not effect the correlation.
 
-The new three-way ANOVA model rejected only the two first hypotheses. Therefore we created another two-way ANOVA model, this time using the distance variable as a blocking variable. 
+The new three-way ANOVA model rejected the first two hypotheses. Therefore we created another two-way ANOVA model, this time using the distance variable as a blocking variable. 
 
 By diagnosing the regression's plots (fig.2), we can see that the residuals are randomized, and that the normal probability plot is relatively linear. In addition, AIC's determined that this model has the best fit out of the four.
 
 ```{r}
-# fig2
+fig2
 ```
 
 Lastly, we used the Tukey's Honestly-Significant-Difference (TukeyHSD) test to examine the difference between the treatments and between a treatment in its initial state to its final state.
 
 ```{r}
-# kable(tbl1)
-# kable(tbl2)
+kable(tbl1)
+kable(tbl2)
 ```
 
 By interpreting these tables we can see that:
@@ -132,7 +127,7 @@ By interpreting these tables we can see that:
 The following plots (fig.3) show the change in the correlation based on the distance of electrodes from one another at different time periods.
 
 ```{r}
-# fig3
+fig3
 ```
 
 This is a clear visualization to FGL's efficiency in comparison to AP5 and the control group. The correlation value increases after the FGL treatment, while the rest were in about the same level.
