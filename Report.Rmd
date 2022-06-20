@@ -4,9 +4,9 @@ title: |
 author: "Team P"
 date: "19 June 2022"
 output:
-  word_document: default
-  html_document: default
   pdf_document: default
+  html_document: default
+  word_document: default
 subtitle: Final Project Report
 editor_options:
   markdown:
@@ -61,11 +61,8 @@ Each file was recorded at different episodes of the experiment: before treatment
 Each of them contains 3 main features:
 
 -   Time (s) [Float]: Seconds passed from the start of the recording until a signal was sent.
-
--   Electrode [String]: The electrode on which the neuron that sent the signal is placed.
-    \
+-   Electrode [String]: The electrode on which the neuron that sent the signal is placed. \
     This column contains the well's ID and the electrode's ID, separated by a lower dash as the following format: [Well name]\_[Electrode name]
-
 -   Amplitude (mV) [Float]: The electronic signals strength (voltage).
 
 There is a total of 24 wells, each containing 16 electrodes.
@@ -77,10 +74,9 @@ For additional information about the above, please refer to the `README.md` file
 
 ## Methods and Results
 
-At first, we attempted to find the answer to our research question using a KNN model. For each time period, we calculated the firing rate for each treatment by summing the firing rate of different wells who were given the same treatment. We calculated the change in the firing rate for adjacent time periods. Our hypotheses was that if there is a significant difference in the firing rate of each well with a specific treatment, the model will be able to determine which one is it. Therefore we could understand the treatment's influence over the neurons. 
+At first, we attempted to find the answer to our research question using a KNN model. Our hypotheses was that each treatment may encourage a change in the neurons firing rate. We calculated the change in firing rate based on treatment, but model accuracy was low. It could not accurately predict the type of treatment given.
 
-The model accuracy was low. The model could not determine which treatment was given to a well based on the change in its firing rate.
-We concluded the change in firing rate is not a way to measure the treatment's efficiency. An electrode might send signals consistently but with no response.
+We concluded that the change in firing rate is not a way to measure the treatment's efficiency. An electrode might send signals consistently but with no response.
 
 We decided to try a different approach. We calculated every pair of electrodes' correlation within a single well using Pearson's correlation method. The correlation is stronger in electrodes that sent a signal during adjacent times. We repeated this process for every well at each time period. 
 
@@ -101,7 +97,9 @@ To choose the best fitted model for our data between the two, we used AIC's meth
 
 Yet, by diagnosing the regression's plots (fig.1), we can see that the residuals values are no randomized and the normal probability plot is not linear. Therefore the model is not well-fitted to the data.
 
-[fig.1]
+```{r}
+# fig1
+```
 
 To improve the fit, we decided to examine how the distance between the electrodes within the well effect the correlation. The additional null hypotheses we wish to test were: 
 
@@ -111,26 +109,31 @@ To improve the fit, we decided to examine how the distance between the electrode
 4. The interaction between time period, treatment and distance does not effect the correlation.
 
 The new three-way ANOVA model rejected only the two first hypotheses. Therefore we created another two-way ANOVA model, this time using the distance variable as a blocking variable. 
-Using the AIC's method, we could determine that the last model fits best to our data. 
-In addition, by diagnosing the regression's plots (fig.2), we can see that the residuals are randomized, and that the normal probability is relatively linear. Therefore the model is well-fitted to the data.
 
-[fig.2]
+By diagnosing the regression's plots (fig.2), we can see that the residuals are randomized, and that the normal probability plot is relatively linear. In addition, AIC's determined that this model has the best fit out of the four.
 
-Lastly, we used the Tukey's Honestly-Significant-Difference (TukeyHSD) test to examine the difference between the treatments and between a treatment in its initial state to its end state.
+```{r}
+# fig2
+```
 
-[tbl.1]
+Lastly, we used the Tukey's Honestly-Significant-Difference (TukeyHSD) test to examine the difference between the treatments and between a treatment in its initial state to its final state.
 
-[tbl.2]
+```{r}
+# kable(tbl1)
+# kable(tbl2)
+```
 
 By interpreting these tables we can see that:
 
 * There is a significant difference between the treatments and between each treatment to the control group
-* FGL exhibited a significant difference between its initial state to its end state.
-* AP5 did not exhibited a significant difference between its initial state to its end state.
+* FGL exhibited a significant difference between its initial state to its final state.
+* AP5 did not exhibited a significant difference between its initial state to its final state.
 
 The following plots (fig.3) show the change in the correlation based on the distance of electrodes from one another at different time periods.
 
-[fig.3]
+```{r}
+# fig3
+```
 
 This is a clear visualization to FGL's efficiency in comparison to AP5 and the control group. The correlation value increases after the FGL treatment, while the rest were in about the same level.
 In conclusion, FGL is proven to be the better memory-improving treatment of the two.
