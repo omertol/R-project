@@ -23,8 +23,8 @@ Each row is a record of the time and voltage of a specific neuron that sent an e
 The data is divided to time periods of the day and every Excel files describes different time period:
 
 1. Before treatment.
-2. 4 hours following the treatment.
-3. 19 hours after the treatment, from the moment the night started.
+2. 5 hours following the treatment.
+3. 18 hours over the night after the treatment.
 
 Each file contains the following columns:
 1. "Investigator" and column no.2 (missing name) - General information about the recording, such as: "Experiment Start Time" (date), "Temperature", system specifications and setting, etc.
