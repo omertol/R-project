@@ -22,10 +22,37 @@ library(class)
 
 ```{r}
 #Load data
-list_df <- list.files("./data", pattern="*.csv", full.names=TRUE)
-df<-read.csv(file = "./Petri&Treatment.csv")[1:2]
+list_df <- list.files("./data/spike data", pattern="*.csv", full.names=TRUE)
 ldf <- lapply(list_df, read.csv)
+```
 
+```{r find wells and treatments, warning=FALSE}
+if (file.exists("./data/wells and treatment.csv")){
+  df <- read.csv("./data/wells and treatment.csv")
+} else {
+  # Load one of the data files (arbitrarily) to extract the well information chart
+  well_treat <- read.csv(file = "./data/spike data/ac div16(000)_spike_list.csv")
+  
+  # Find the chart in the file
+  rnom <- as.numeric(which(well_treat == "Well Information"))
+  well_treat <- fread(file = "./data/spike data/ac div16(000)_spike_list.csv", skip=rnom)
+  
+  
+  # Select only well ID and treatment given
+  well_treat <- well_treat[which(well_treat$`Well Information` == "Well" | 
+            well_treat$`Well Information` == "Treatment"),]
+  
+  # Transpose to a longer data frame and fix labeling
+  well_treat <- data.frame(t(well_treat[,2:ncol(well_treat)]))
+  rownames(well_treat) <- seq(1:nrow(well_treat))
+  colnames(well_treat) <- c("Well", "Treatment")
+  
+  # Filter inactive wells
+  well_treat <- well_treat[well_treat$Treatment != "Inactive",]
+  
+  # Create and save a .csv file for future use
+  write.csv(well_treat,"./data/wells and treatment.csv", row.names = FALSE)
+}
 ```
 
 ```{r}
