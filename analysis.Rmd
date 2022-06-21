@@ -134,18 +134,15 @@ find_corr_mat <- function(file_df, well_id, file_id){
   # One or less electrodes sent signal for specific well
   if (dim(well_df) == 0 || length(elec_lst) <= 1){
     
-    df <- well_dist
-    df[,"corr"] <- 0
-    df[, "well_id"] <- well_id
-    df[, "file_id"] <- file_id
-    
+    df <- data.frame("distance" = unique(well_dist$distance),
+                     "well_id" = well_id,
+                     "file_id" = file_id,
+                     "corr" = 0)
+
     if (length(elec_lst) == 1){
-      
-      elec <- elec_lst[[1]]$Electrode[1]
-      df[which(df$elec2 == df$elec1 & df$elec1 == elec), "corr"] <- 1
-      
-      }
-    
+      df [which("distance" == 0),"corr"] <- 1
+    }
+
     return(df)
     }
   
@@ -181,6 +178,13 @@ find_corr_mat <- function(file_df, well_id, file_id){
 
   corr[,"well_id"] <- well_id
   corr[,"file_id"] <- file_id
+  
+  corr$corr[is.na(corr$corr)] <- 0
+  
+  # Calculate mean correlation for each distance
+  corr <- corr %>% group_by(distance, well_id, file_id) %>%
+  mutate(corr = as.numeric(corr)) %>%
+  summarise_at(vars(corr), mean)
 
   return(corr)
   }
@@ -201,14 +205,12 @@ corr_df <- rbindlist(sapply(well_treat$Well, f1, simplify = FALSE))
 ```{r mean correlation by distance}
 corr_df$corr[is.na(corr_df$corr)] <- 0
 
-# Calculate mean correlation for each distance
-corr_df <- corr_df %>% group_by(file_id, treatment, well_id, distance) %>%
-  mutate(corr = as.numeric(corr)) %>%
-  summarise_at(vars(corr), mean)
-
 # Add treatment column
 corr_df <- corr_df %>% rowwise() %>%
   mutate(treatment = well_treat$Treatment[well_treat$Well == well_id])
+
+corr_df <- corr_df %>% group_by(distance, treatment, file_id) %>%
+  summarise_at(vars(corr), mean)
 ```
 
 ```{r prepare data for ANOVA tests}
@@ -222,73 +224,28 @@ tmp <- tmp %>% mutate(time_p = case_when(file_id == 1 ~ "Before",
 tmp <- tmp[, c("treatment", "distance", "corr", "time_p")]
 ```
 
-```{r additive two-way ANOVA}
-two_way <- aov(corr~treatment + time_p,tmp)
-summary(two_way)
-```
+```{r two-way ANOVA}
+tmp$distance <- as.factor(tmp$distance)
+additive <-  aov(corr ~ treatment + distance, tmp)
+interaction <-  aov(corr ~ treatment * distance, tmp)
+blocking <- aov(corr ~ treatment * distance + time_p + treatment:time_p, tmp)
 
-```{r two-way ANOVA with interaction}
-interaction <- aov(corr ~ treatment * time_p,tmp)
+summary(additive)
 summary(interaction)
+summary(blocking)
 ```
 
-```{r AIC's method to find best fitted ANOVA of two}
-model.set <- list(two_way, interaction)
-model.names <- c("two way", "interaction")
+```{r AIC to find best fitted ANOVA}
+model.set <- list(additive, interaction, blocking)
+model.names <- c("additive", "interaction", "blocking")
 
 aictab(model.set, modnames = model.names)
 ```
 
-```{r determine fit of the model, width=2}
-# two_way_model <- lm(corr ~ treatment * time_p, tmp)
-# fig1_data <- data.frame(x=two_way_model$fitted.values, 
-#                         y=two_way_model$residuals,
-#                         stres= rstandard(two_way_model),
-#                         )
-# 
-# fig1 <- fig1_data %>% ggplot(aes(x = x, y=y)) +
-#   geom_point() + 
-#   labs(
-#     x= "Fitted Values",
-#     y= "Residuals",
-#     title = " Fitted Values vs. Residuals", 
-#     caption = "Fig.1"
-#   ) + 
-#   theme_light() 
-# fig1
-
-two_way_model <- lm(corr ~ treatment * time_p, tmp)
-par(mfrow = c(1,2))
-plot(two_way_model, c(1,2), add.smooth = FALSE)
-```
-
-```{r ANOVA tests with distance}
-three_way_interaction <- aov(corr ~ treatment * time_p * as.factor(distance), tmp)
-summary(three_way_interaction)
-
-two_way_distance <- aov(corr ~ treatment * time_p + as.factor(distance), tmp)
-summary(two_way_distance)
-```
-
-```{r AIC's method to find best fitted ANOVA of four}
-model.set <- list(two_way, interaction, three_way_interaction, two_way_distance)
-model.names <- c("two way anova", "interaction", "three way anova", "two way with distance")
-
-aictab(model.set, modnames = model.names)
-```
-
-```{r determine fit of the model}
-three_way_model <- lm(corr ~ treatment * time_p + distance, tmp)
-par(mfrow = c(1,2))
-plot(three_way_model, c(1,2), add.smooth = FALSE)
-```
-
-```{r Tukey’s Test for multiple comparisons}
-tbl1 <- as.data.frame(TukeyHSD(three_way_interaction, which = c("treatment"))[[1]])
-
-tbl2 <- as.data.table(TukeyHSD(three_way_interaction, which = c("treatment:time_p"))[[1]], 
+```{r}
+tbl1 <- as.data.frame(TukeyHSD(blocking, which = c("treatment"))[[1]])
+tbl2 <- as.data.table(TukeyHSD(blocking, which = c("treatment:time_p"))[[1]], 
                                   keep.rownames = TRUE)
-
 tbl2 <- separate(tbl2,
                              col = 1,
                              into = c("t1", "t2"),
@@ -300,20 +257,22 @@ tbl2 <- separate(tbl2,
            into= c("treatment1", "time1"), 
            sep = ":")
 
-tbl2 <- tbl2[treatment1 == treatment2, c(1,2,4,5,6,7,8)]
+tbl2 <- tbl2[treatment1 == treatment2 & 
+               (time1 != "Right After" & time2 != "Right After"), c(1,2,4,5,6,7,8)]
+tbl2 <- tbl2[order(tbl2, treatment1),]
 
 tbl1
 tbl2
 ```
 
-```{r Graph per treatment, fig.height=2, fig.width=7}
-fig3_data <- tmp %>% 
+```{r graph per treatment, fig.height=2, fig.width=7}
+fig1_data <- tmp %>% 
   group_by(time_p, treatment, distance) %>% 
   summarise_at(vars(corr), mean)
 
-fig3 <- ggplot(transform(fig3_data,
+fig1 <- ggplot(transform(fig1_data,
                          treatment = factor(treatment,levels = c("Control","AP5","FGL")),
-                         time_p = factor(time_p,levels = c("Before","During","After"))),
+                         time_p = factor(time_p,levels = c("Before","Right After","Over Night"))),
                aes(x=distance,
                    y=corr,
                    color=time_p,
@@ -326,5 +285,5 @@ fig3 <- ggplot(transform(fig3_data,
     y="Correlation",
     color="Time")
 
-fig3
+fig1
 ```
