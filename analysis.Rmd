@@ -265,7 +265,7 @@ tbl1
 tbl2
 ```
 
-```{r graph per treatment, fig.height=2, fig.width=7}
+```{r graph per treatment, fig.height=2, fig.width=7, message=FALSE}
 fig1_data <- tmp %>% 
   group_by(time_p, treatment, distance) %>% 
   summarise_at(vars(corr), mean)
@@ -283,7 +283,17 @@ fig1 <- ggplot(transform(fig1_data,
   labs(
     x="Distance(μm)",
     y="Correlation",
-    color="Time")
+    color="Time")+
+  geom_point() + 
+  theme(
+    plot.margin = margin(0.5, 0.5, 0.5, 0.5, unit = "cm"),
+    legend.position = "top",
+    legend.key.size = unit(1, "lines"),
+    legend.title = element_blank(),
+    legend.box = "verical", 
+    axis.text.x = element_text(angle = 60, hjust = 1, size = 7),
+    ) + 
+  scale_color_brewer(palette = "Set2")
 
 fig1
 ```
