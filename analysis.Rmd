@@ -1,11 +1,13 @@
 ---
 title: "analysis"
-output: html_document
+output:
+  word_document: default
+  html_document: default
 date: '2022-06-13'
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_chunk$set(echo = FALSE)
 ```
 
 ```{r load-packages, message = FALSE}
@@ -140,7 +142,7 @@ find_corr_mat <- function(file_df, well_id, file_id){
                      "corr" = 0)
 
     if (length(elec_lst) == 1){
-      df [which("distance" == 0),"corr"] <- 1
+      df[which("distance" == 0), "corr"] <- 1
     }
 
     return(df)
@@ -265,7 +267,7 @@ tbl1
 tbl2
 ```
 
-```{r graph per treatment, fig.height=2, fig.width=7, message=FALSE}
+```{r graph per treatment, fig.height=3, fig.width=9, message=FALSE}
 fig1_data <- tmp %>% 
   group_by(time_p, treatment, distance) %>% 
   summarise_at(vars(corr), mean)
@@ -291,8 +293,10 @@ fig1 <- ggplot(transform(fig1_data,
     legend.key.size = unit(1, "lines"),
     legend.title = element_blank(),
     legend.box = "verical", 
-    axis.text.x = element_text(angle = 60, hjust = 1, size = 7),
-    ) + 
+    axis.text.x = element_text(angle = 60, hjust = 1),
+    legend.text = element_text(size = 12),
+    plot.tag.position = "topright",
+    strip.text.x = element_text(size = 16, face = "bold")) + 
   scale_color_brewer(palette = "Set2")
 
 fig1
