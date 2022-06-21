@@ -17,63 +17,93 @@ library(tidyverse)
 library(broom)
 library(htmltools)
 library(class)
-
+library(data.table)
 ```
 
 ```{r}
 #Load data
-list_df <- list.files("./data", pattern="*.csv", full.names=TRUE)
-df<-read.csv(file = "./Petri&Treatment.csv")[1:2]
+list_df <- list.files("./data/spike data", pattern="*.csv", full.names=TRUE)
 ldf <- lapply(list_df, read.csv)
-
 ```
 
-```{r}
-get_petri <- function(df){
-  df_res <- df[c(3,4,5)]
-  df_res <- separate(df_res, col = "Electrode",
-           into = c("Petri", "Electrode"),
+```{r find wells and treatments, warning=FALSE}
+if (file.exists("./data/wells and treatment.csv")){
+  well_treat <- read.csv("./data/wells and treatment.csv")
+} else {
+  # Load one of the data files (arbitrarily) to extract the well information chart
+  well_treat <- read.csv(file = "./data/spike data/ac div16(000)_spike_list.csv")
+  
+  # Find the chart in the file
+  rnom <- as.numeric(which(well_treat == "Well Information"))
+  well_treat <- fread(file = "./data/spike data/ac div16(000)_spike_list.csv", skip=rnom)
+  
+  
+  # Select only well ID and treatment given
+  well_treat <- well_treat[which(well_treat$`Well Information` == "Well" | 
+            well_treat$`Well Information` == "Treatment"),]
+  
+  # Transpose to a longer data frame and fix labeling
+  well_treat <- data.frame(t(well_treat[,2:ncol(well_treat)]))
+  rownames(well_treat) <- seq(1:nrow(well_treat))
+  colnames(well_treat) <- c("Well", "Treatment")
+  
+  # Filter inactive wells
+  well_treat <- well_treat[well_treat$Treatment != "Inactive",]
+  
+  # Create and save a .csv file for future use
+  write.csv(well_treat,"./data/wells and treatment.csv", row.names = FALSE)
+}
+```
+
+```{r clean the data, message=FALSE}
+remove_inactive <- function(df){
+  df <- df[c(3,4,5)]
+  df <- drop_na(df)
+  #only the first 11 minutes
+  df<- df %>% filter(df$Time..s.<=660) 
+  df <- df[df$Electrode %like% paste(well_treat$Well, collapse = "|"),] 
+  df$Time..s. <- as.numeric(df$Time..s.)
+  return(df)
+}
+
+sep_wells <- function(df){
+  df <- separate(df, col = "Electrode",
+           into = c("Well", "Electrode"),
            sep = "_")
-  df_res <- drop_na(df_res)
-  return(df_res)
+  df <- drop_na(df)
+  return(df)
 }
 
-filter_data<- function(data){
-  #only the first 10 minutes
-  data<- data %>% filter(data$Time..s.<=600)
-  data <- data %>% count(Petri)
-  return(data)
-}
-
-
-ldf <- lapply(ldf, get_petri)
-ldf <- lapply(ldf, filter_data)
-
+ldf <- lapply(ldf, remove_inactive)
+ldf <- lapply(ldf, sep_wells)
 ```
 
 ```{r}
-df1 <- ldf[1]
+df1 <- ldf[[1]]
 ldf <- ldf[2:length(ldf)]
 ```
 
 ```{r}
 get_df <- function(df1, df2){
   
-  df1 <- df1 %>% data.frame()
-  df2 <- df2 %>% data.frame() 
-  
   #create one df
-  tmp <- right_join(df1,df,by="Petri") 
-  tmp <- right_join(df2,tmp, by="Petri")
-  tmp[is.na(tmp)] <- 0 #replace na`s value with 0's
-  tmp$n <- as.numeric(tmp$n.y - tmp$n.x)
-  return(tmp[, c("Petri", "n", "Treatment")])
+  to_join <- df1 %>% group_by(Well) %>% count(Well)
+  tmp <- left_join(well_treat, to_join, by= "Well")
+  
+  to_join <- df2 %>% group_by(Well) %>% count(Well)
+  tmp <- left_join(tmp, to_join, by="Well")
+  
+  tmp[is.na(tmp)] <- 0
+  
+  tmp <- tmp %>% mutate(n = tmp$n.x - tmp$n.y)
 
+  return(tmp[, c("Well", "n", "Treatment")])
 }
 
 pairwise_knn <- function(join_df){
   join_df <- join_df[,c("n", "Treatment")]
   ran <- sample(1:nrow(join_df), 0.8 * nrow(join_df))
+  
   nor <-function(x) {
     return ((x -min(x))/(max(x)-min(x)))
     }
@@ -96,7 +126,6 @@ pairwise_knn <- function(join_df){
   
   print(accuracy(tab))
 }
-
 ```
 
 ```{r}
@@ -105,13 +134,4 @@ for(i in  ldf){
   df1 <- i
   pairwise_knn(join_df)
 }
-
 ```
-
-
-
-
-
-
-
-
